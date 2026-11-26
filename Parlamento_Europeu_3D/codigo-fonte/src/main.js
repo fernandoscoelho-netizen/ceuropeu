@@ -8,6 +8,7 @@ import { LUGARES, DATA_PLANTA } from './dados_deputados.js';
 import { PARTIDOS, DATA_LISTA } from './dados_partidos.js';
 import { construirHemiciclo, S, CX, CY, R0, DR, ALT, Z_PAREDE, R_PAREDE, Y_GALERIA } from './cena.js';
 import { ecraComposicao } from './texturas.js';
+import { criarAtividades } from './atividades.js';
 
 // ======================= DADOS =======================
 const GRUPOS = {
@@ -284,6 +285,7 @@ function abrirFicha(l) {
 
 // ======================= PAINEL / MODOS =======================
 const pTitulo = document.getElementById('pTitulo'), pConteudo = document.getElementById('pConteudo'), pFonte = document.getElementById('pFonte');
+const ATIV = criarAtividades({ lugares, GRUPOS, OUTROS, ORDEM, PAISES, TOTAL, MAIORIA, pintar, corDe, voar, abrirFicha, pConteudo, porPais, H, D_PLANTA });
 const painel = document.getElementById('painel'), abrirP = document.getElementById('abrirPainel');
 document.getElementById('fecharPainel').onclick = () => { painel.classList.add('fechado'); abrirP.classList.add('ver'); };
 abrirP.onclick = () => { painel.classList.remove('fechado'); abrirP.classList.remove('ver'); };
@@ -380,6 +382,7 @@ function htmlEstados() {
 let fonteNum = 'atual';
 function definirModo(m) {
   modo = m;
+  ATIV.parar();
   document.querySelectorAll('#modos button[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
   ficha.style.display = 'none';
   grupoCont.visible = m === 'numero';
@@ -412,6 +415,10 @@ function definirModo(m) {
     aplicarPais();
     pConteudo.querySelectorAll('[data-cc]').forEach(b => b.onclick = () => { paisSel = paisSel === b.dataset.cc ? null : b.dataset.cc; definirModo('estados'); });
     const bt = document.getElementById('bTodos'); if (bt) bt.onclick = () => { paisSel = null; definirModo('estados'); };
+  }
+  if (m === 'atividades') {
+    pTitulo.textContent = 'Atividades';
+    ATIV.menu();
   }
   pFonte.innerHTML = FONTE_CURTA;
   pFonte.querySelector('[data-fontes]').onclick = e => { e.preventDefault(); abrirFontes(); };
@@ -576,5 +583,5 @@ bEntrar.disabled = false; bEntrar.textContent = 'Entrar no hemiciclo';
 bEntrar.onclick = () => { document.getElementById('entrada').hidden = true; };
 // acesso direto por endereço (ex.: #grupos) — útil para a sala de aula
 const h = location.hash.replace('#', '');
-if (['grupos', 'numero', 'estados'].includes(h)) { document.getElementById('entrada').hidden = true; definirModo(h); }
-window.__visita = { renderer, lugarSob, definirModo, voar, VISTAS, camera, controls, lugares, GRUPOS, porPais, setPais: cc => { paisSel = cc; definirModo('estados'); }, setGrupo: g => { filtroGrupo = g; definirModo('grupos'); } };
+if (['grupos', 'numero', 'estados', 'atividades'].includes(h)) { document.getElementById('entrada').hidden = true; definirModo(h); }
+window.__visita = { ATIV, renderer, lugarSob, definirModo, voar, VISTAS, camera, controls, lugares, GRUPOS, porPais, setPais: cc => { paisSel = cc; definirModo('estados'); }, setGrupo: g => { filtroGrupo = g; definirModo('grupos'); } };

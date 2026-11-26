@@ -4,7 +4,8 @@ VISITA VIRTUAL AO PARLAMENTO EUROPEU · HEMICICLO DE ESTRASBURGO
 Como abrir
 - Abre o ficheiro index.html num navegador (Chrome, Edge, Firefox ou Safari).
 - Funciona sem instalar nada e também sem Internet (ficheiro único).
-- Endereços diretos para a aula: index.html#grupos, index.html#numero, index.html#estados
+- Endereços diretos para a aula: index.html#grupos, index.html#numero, index.html#estados,
+  index.html#atividades
 
 O que se pode fazer
 1. Visita: percorrer o hemiciclo em 3D, com etiquetas nos locais importantes
@@ -16,6 +17,17 @@ O que se pode fazer
    constitutiva de 2024 e maioria absoluta (361).
 4. Estados-Membros: quantos deputados elege cada país, onde se sentam,
    por grupo e por partido nacional.
+5. Atividades:
+   - Simular uma votação (proposta fictícia; o aluno decide o voto de cada grupo
+     e os lugares acendem a verde, vermelho ou branco; maioria simples ou absoluta).
+   - Formar uma coligação até aos 361 deputados (com o resultado real da eleição
+     da Presidente da Comissão, 18/07/2024: 401 a favor, 284 contra, 22 brancos/nulos).
+   - Percurso de uma lei: processo legislativo ordinário (art. 294.º TFUE), em 6 passos.
+   - Sê deputado: sentar no lugar de um dos 21 deputados portugueses, pedir a palavra
+     e escolher o canal de interpretação nas 24 línguas oficiais.
+   - Quiz final com 10 perguntas.
+   Nota: a votação é uma simulação. Na realidade cada deputado vota individualmente
+   e nem sempre segue o seu grupo.
 
 Fontes dos dados (todas oficiais)
 - Planta interativa do hemiciclo de Estrasburgo, Parlamento Europeu
