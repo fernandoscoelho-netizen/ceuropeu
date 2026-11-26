@@ -28,6 +28,16 @@ details{font-size:14px;border-top:1px solid rgba(138,90,43,.4);padding-top:6px}
 summary{cursor:pointer;color:var(--sepia)}
 details ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 details a{color:var(--sepia)}
+.card-toggle{position:sticky;top:0;align-self:flex-end;z-index:2;flex:none;margin:-8px -10px -34px 0;width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--parchment);color:var(--sepia);border:1px solid var(--sepia);line-height:1}
+.card-toggle svg{width:18px;height:18px;flex:none;transition:transform .2s}
+.card-toggle .lbl{display:none;font-size:15px}
+.card > .eyebrow{padding-right:36px}
+.card{box-sizing:border-box}
+.card.collapsed{width:auto;max-height:none;padding:0;gap:0;background:none;border:0;box-shadow:none;overflow:visible}
+.card.collapsed > :not(.card-toggle){display:none}
+.card.collapsed .card-toggle{position:static;margin:0;width:auto;padding:0 12px;box-shadow:0 0 0 4px rgba(239,227,200,.18), 0 8px 20px rgba(0,0,0,.45)}
+.card.collapsed .card-toggle .lbl{display:inline}
+.card.collapsed .card-toggle svg{transform:rotate(180deg)}
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;color:var(--parchment);background:var(--night)}
 .bar{position:fixed;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
   padding:12px max(16px, env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px));
@@ -47,7 +57,8 @@ button:disabled{opacity:.5;cursor:default}
 <canvas id="scene" aria-label="Cena 3D do Largo da Sé em ruínas, com crianças a pedir Pão por Deus de porta em porta"></canvas>
 <div id="loading">A levantar as ruínas…</div>
 
-<section class="card" aria-live="polite">
+<section class="card" id="card" aria-live="polite">
+  <button class="card-toggle" id="cardToggle" type="button" aria-expanded="true" aria-controls="card" aria-label="Recolher a caixa de texto" title="Recolher a caixa de texto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg><span class="lbl">Mostrar texto</span></button>
   <p class="eyebrow">Reconstituição imaginada · Lisboa</p>
   <h1>Largo da Sé, 1 de novembro de 1756</h1>
   <p>Um ano depois do terramoto, crianças percorrem as casas arruinadas a pedir pão, segundo a lenda do Pão por Deus.</p>
@@ -605,4 +616,9 @@ loop();
 })();
 </script>
 
+<script>
+(function(){var c=document.getElementById('card'),b=document.getElementById('cardToggle');
+b.addEventListener('click',function(e){e.stopPropagation();var col=c.classList.toggle('collapsed');
+b.setAttribute('aria-expanded',String(!col));var t=col?'Mostrar a caixa de texto':'Recolher a caixa de texto';b.setAttribute('aria-label',t);b.title=t;});})();
+</script>
 </body></html>
