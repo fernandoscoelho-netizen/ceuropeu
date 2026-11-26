@@ -8,158 +8,100 @@
 <style>
 :root{
   --azul:#0b2a7a; --azul-2:#123a9e; --azul-3:#1d4fc4; --ouro:#ffcc00; --ouro-2:#f2b705;
-  --papel:#f6f7fb; --tinta:#0d1633; --suave:#4a5680; --cartao:#ffffff; --linha:#dfe3f0;
+  --papel:#eef2fb; --tinta:#0d1633; --suave:#4a5680; --cartao:rgba(255,255,255,.8); --linha:rgba(29,79,196,.16);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  color:var(--tinta); background:var(--papel); line-height:1.5; min-height:100vh;
-  position:relative; overflow-x:hidden;
-}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--tinta); background:var(--papel); line-height:1.5; min-height:100vh; overflow-x:hidden}
 
-/* ---------- Fundo: princípios, direitos e liberdades ---------- */
-.fundo{position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(29,79,196,.16), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(255,204,0,.16), transparent 60%),
-    var(--papel);}
-.fundo .palavra{position:absolute; font-weight:800; letter-spacing:.02em; white-space:nowrap;
-  color:var(--azul); opacity:.06; user-select:none; animation:flutua 26s ease-in-out infinite alternate;}
-.fundo .palavra.ouro{color:var(--ouro-2); opacity:.12}
-.fundo svg{position:absolute; opacity:.07; color:var(--azul); animation:flutua 30s ease-in-out infinite alternate}
-@keyframes flutua{from{transform:translateY(0) rotate(var(--r,0deg))} to{transform:translateY(-18px) rotate(var(--r,0deg))}}
-@media (prefers-reduced-motion:reduce){ .fundo *{animation:none!important} .estrelas use{animation:none!important} }
+/* ---------- Fundo animado: mapa da Europa em rede ---------- */
+#rede{position:fixed; inset:0; width:100%; height:100%; z-index:0; display:block}
+.conteudo{position:relative; z-index:1}
 
-/* ---------- Cabeçalho ---------- */
-header{
-  background:linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,var(--azul-3) 100%);
-  color:#fff; position:relative; overflow:hidden;
-}
-header::after{content:""; position:absolute; inset:auto 0 0 0; height:6px;
-  background:linear-gradient(90deg,var(--ouro),var(--ouro-2),var(--ouro));}
-.topo{max-width:1180px; margin:0 auto; padding:56px 24px 64px; display:grid;
-  grid-template-columns:1fr auto; gap:32px; align-items:center;}
-.etiqueta{display:inline-block; font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--ouro); margin:0 0 12px}
-h1{font-size:clamp(2rem,4.6vw,3.4rem); line-height:1.08; margin:0 0 16px; letter-spacing:-.01em}
-.lead{font-size:clamp(1rem,1.6vw,1.2rem); max-width:640px; margin:0; color:#dfe6ff}
-.valores{display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; padding:0; list-style:none}
-.valores li{font-size:.85rem; font-weight:600; padding:6px 12px; border-radius:999px;
-  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); color:#fff}
-.estrelas{width:min(220px,38vw); height:auto; display:block}
-.estrelas use{fill:var(--ouro); transform-origin:center; transform-box:fill-box; animation:brilho 4s ease-in-out infinite}
-@keyframes brilho{0%,100%{opacity:1} 50%{opacity:.55}}
+/* ---------- Banner compacto com o hemiciclo ---------- */
+header{position:relative; overflow:hidden; color:#fff;
+  background:linear-gradient(120deg,#081e5c 0%,#123a9e 55%,rgba(29,79,196,.93) 100%);}
+header::after{content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
+  background:linear-gradient(90deg,var(--ouro),var(--ouro-2),var(--ouro))}
+.hemiciclo{position:absolute; right:max(24px,calc((100vw - 1180px)/2 + 24px)); bottom:4px; height:calc(100% - 14px); width:auto; opacity:.75; pointer-events:none}
+.hemiciclo circle{fill:#9fbaff; opacity:.35; animation:onda 6s ease-in-out infinite}
+.hemiciclo circle.g1{fill:#ffd84d}.hemiciclo circle.g2{fill:#ffffff}.hemiciclo circle.g3{fill:#7aa6ff}.hemiciclo circle.g4{fill:#c7d6ff}
+@keyframes onda{0%,100%{opacity:.28} 45%{opacity:.28} 55%{opacity:1} 70%{opacity:.5}}
+.topo{position:relative; max-width:1180px; margin:0 auto; padding:26px 24px 30px; display:flex; align-items:center; gap:18px}
+.bandeira{flex:none; width:64px; height:64px}
+.bandeira use{fill:var(--ouro)}
+.etiqueta{font-size:.72rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--ouro); margin:0 0 4px}
+h1{font-size:clamp(1.45rem,3vw,2.2rem); line-height:1.12; margin:0 0 6px; letter-spacing:-.01em}
+.lead{margin:0; color:#d9e2ff; font-size:clamp(.92rem,1.4vw,1.02rem); max-width:620px}
 
-/* ---------- Conteúdo ---------- */
-main{max-width:1180px; margin:0 auto; padding:48px 24px 32px}
-.intro{display:flex; justify-content:space-between; align-items:end; gap:16px; flex-wrap:wrap; margin-bottom:24px}
-h2{font-size:1.6rem; margin:0}
-.intro p{margin:0; color:var(--suave)}
-.grelha{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px}
-.cartao{background:var(--cartao); border:1px solid var(--linha); border-radius:18px; overflow:hidden;
-  display:flex; flex-direction:column; box-shadow:0 1px 2px rgba(13,22,51,.04),0 8px 24px rgba(13,22,51,.06);
-  transition:transform .18s ease, box-shadow .18s ease;}
-.cartao:hover{transform:translateY(-3px); box-shadow:0 2px 4px rgba(13,22,51,.06),0 16px 36px rgba(13,22,51,.12)}
-.faixa{height:112px; position:relative; display:grid; place-items:center; color:#fff;
-  background:linear-gradient(135deg,var(--c1),var(--c2));}
-.faixa svg{width:52px; height:52px}
-.faixa .tema{position:absolute; left:14px; bottom:10px; font-size:.72rem; font-weight:700; letter-spacing:.1em;
-  text-transform:uppercase; background:rgba(0,0,0,.22); padding:3px 9px; border-radius:999px}
-.corpo{padding:18px 20px 20px; display:flex; flex-direction:column; flex:1}
-.corpo h3{margin:0 0 6px; font-size:1.15rem; line-height:1.25}
-.corpo p{margin:0 0 18px; color:var(--suave); font-size:.95rem; flex:1}
+/* ---------- Cartões ---------- */
+main{max-width:1180px; margin:0 auto; padding:34px 24px 24px}
+.intro{display:flex; justify-content:space-between; align-items:end; gap:12px; flex-wrap:wrap; margin-bottom:20px}
+h2{font-size:1.45rem; margin:0}
+.intro p{margin:0; color:var(--suave); font-size:.95rem}
+.intro h2,.intro p{text-shadow:0 0 8px var(--papel),0 0 3px var(--papel),0 0 1px var(--papel)}
+.grelha{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px}
+.cartao{background:var(--cartao); -webkit-backdrop-filter:blur(10px) saturate(1.2); backdrop-filter:blur(10px) saturate(1.2);
+  border:1px solid var(--linha); border-radius:18px; overflow:hidden; display:flex; flex-direction:column;
+  box-shadow:0 1px 2px rgba(13,22,51,.05),0 10px 28px rgba(13,22,51,.08); transition:transform .2s ease, box-shadow .2s ease}
+.cartao:hover{transform:translateY(-4px); box-shadow:0 4px 8px rgba(13,22,51,.08),0 22px 44px rgba(13,22,51,.16)}
+.faixa{height:104px; position:relative; display:grid; place-items:center; color:#fff; overflow:hidden;
+  background:linear-gradient(135deg,var(--c1),var(--c2))}
+.faixa::before{content:""; position:absolute; inset:0; opacity:.22;
+  background-image:radial-gradient(circle at 1px 1px,#fff 1.2px,transparent 1.4px); background-size:16px 16px;
+  -webkit-mask-image:linear-gradient(120deg,transparent 20%,#000 90%); mask-image:linear-gradient(120deg,transparent 20%,#000 90%)}
+.faixa svg{width:48px; height:48px; position:relative; transition:transform .3s ease}
+.cartao:hover .faixa svg{transform:scale(1.12) rotate(-4deg)}
+.faixa .tema{position:absolute; left:14px; bottom:10px; font-size:.7rem; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; background:rgba(0,0,0,.25); padding:3px 9px; border-radius:999px}
+.corpo{padding:16px 18px 18px; display:flex; flex-direction:column; flex:1}
+.corpo h3{margin:0 0 6px; font-size:1.1rem; line-height:1.25}
+.corpo p{margin:0 0 16px; color:var(--suave); font-size:.93rem; flex:1}
 .botao{align-self:flex-start; display:inline-flex; align-items:center; gap:8px; text-decoration:none;
-  background:var(--azul); color:#fff; font-weight:700; padding:10px 18px; border-radius:10px;
-  border:2px solid var(--azul); transition:background .15s, color .15s}
+  background:var(--azul); color:#fff; font-weight:700; padding:9px 17px; border-radius:10px;
+  border:2px solid var(--azul); transition:background .15s, color .15s, border-color .15s}
 .botao:hover{background:var(--ouro); border-color:var(--ouro); color:var(--azul)}
 .botao:focus-visible{outline:3px solid var(--ouro); outline-offset:3px}
 .botao svg{width:16px; height:16px}
 
-/* ---------- Faixa dos valores ---------- */
-.artigo2{margin:56px auto 0; max-width:1180px; padding:0 24px}
-.artigo2 blockquote{margin:0; padding:24px 28px; border-left:6px solid var(--ouro); background:#fff;
-  border-radius:0 14px 14px 0; border-top:1px solid var(--linha); border-right:1px solid var(--linha); border-bottom:1px solid var(--linha);
-  font-size:1.05rem; color:var(--tinta)}
-.artigo2 cite{display:block; margin-top:10px; font-style:normal; font-size:.85rem; color:var(--suave)}
+.artigo2{margin:44px auto 0; max-width:1180px; padding:0 24px}
+.artigo2 blockquote{margin:0; padding:20px 24px; border-left:6px solid var(--ouro); background:var(--cartao);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-radius:0 14px 14px 0; font-size:1rem}
+.artigo2 cite{display:block; margin-top:8px; font-style:normal; font-size:.85rem; color:var(--suave)}
+footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suave); font-size:.88rem; text-align:center}
 
-footer{max-width:1180px; margin:0 auto; padding:40px 24px 48px; color:var(--suave); font-size:.88rem; text-align:center}
-
-@media (max-width:720px){
-  .topo{grid-template-columns:1fr; padding:40px 20px 48px}
-  .estrelas{width:130px; order:-1}
-  main{padding:36px 18px 24px}
+@media (max-width:640px){
+  .topo{padding:20px 18px 24px; gap:14px}
+  .bandeira{width:48px; height:48px}
+  .hemiciclo{right:-28%; opacity:.35}
+  main{padding:26px 16px 20px}
 }
 @media (prefers-color-scheme:dark){
-  :root{--papel:#0a1024; --tinta:#eef1fb; --suave:#a9b3d6; --cartao:#121a36; --linha:#25305a}
-  .fundo .palavra{color:#8fa8ff; opacity:.07}
-  .fundo svg{color:#8fa8ff}
-  .artigo2 blockquote{background:var(--cartao)}
+  :root{--papel:#070c1e; --tinta:#eef1fb; --suave:#a9b3d6; --cartao:rgba(18,26,54,.78); --linha:rgba(143,168,255,.18)}
   .botao{background:var(--ouro); border-color:var(--ouro); color:#0b2a7a}
   .botao:hover{background:transparent; color:var(--ouro)}
 }
+@media (prefers-reduced-motion:reduce){ .hemiciclo circle{animation:none} .cartao,.faixa svg{transition:none} }
 </style>
 </head>
 <body>
 
-<!-- Fundo decorativo com princípios, direitos e liberdades -->
-<div class="fundo" aria-hidden="true">
-  <span class="palavra" style="top:6%;left:3%;font-size:5.5rem;--r:-4deg">LIBERDADE</span>
-  <span class="palavra ouro" style="top:16%;right:4%;font-size:3.2rem;--r:3deg">Dignidade humana</span>
-  <span class="palavra" style="top:30%;left:38%;font-size:4.2rem;--r:-2deg">DEMOCRACIA</span>
-  <span class="palavra ouro" style="top:41%;left:2%;font-size:2.6rem;--r:5deg">Igualdade</span>
-  <span class="palavra" style="top:48%;right:2%;font-size:3.4rem;--r:-3deg">Estado de direito</span>
-  <span class="palavra" style="top:60%;left:20%;font-size:2.4rem;--r:2deg">Liberdade de expressão</span>
-  <span class="palavra ouro" style="top:67%;right:18%;font-size:3rem;--r:-5deg">Solidariedade</span>
-  <span class="palavra" style="top:76%;left:4%;font-size:4.6rem;--r:3deg">DIREITOS HUMANOS</span>
-  <span class="palavra" style="top:86%;right:6%;font-size:2.8rem;--r:-2deg">Cidadania</span>
-  <span class="palavra ouro" style="top:92%;left:40%;font-size:2.2rem;--r:4deg">Justiça</span>
-  <span class="palavra" style="top:22%;left:12%;font-size:2rem;--r:-6deg">Tolerância</span>
-  <span class="palavra" style="top:55%;left:55%;font-size:2rem;--r:6deg">Pluralismo</span>
-  <span class="palavra" style="top:36%;right:30%;font-size:1.8rem;--r:-3deg">Não discriminação</span>
-  <span class="palavra ouro" style="top:82%;left:50%;font-size:1.9rem;--r:-4deg">Unidade na diversidade</span>
+<canvas id="rede" aria-hidden="true"></canvas>
 
-  <!-- Balança da justiça -->
-  <svg style="top:12%;left:46%;width:120px;--r:-6deg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8v46M18 54h28M12 16h40M32 12l-20 4M32 12l20 4M12 16l-8 18h16l-8-18M52 16l-8 18h16l-8-18"/></svg>
-  <!-- Urna de voto -->
-  <svg style="top:62%;left:72%;width:130px;--r:5deg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 30h44v26H10zM22 30V10h20v20M26 18l4 4 8-8M10 40h44"/></svg>
-  <!-- Pomba da paz -->
-  <svg style="top:40%;left:8%;width:120px;--r:-4deg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 36c10 0 18-4 24-12 4 6 10 10 18 10l10-6-6 10c-4 8-12 12-22 12-8 0-14-4-18-10M30 24c0-8 6-14 14-16-2 8-2 14 4 20M48 22h.01"/></svg>
-  <!-- Mão no ar (voto/participação) -->
-  <svg style="top:84%;left:24%;width:100px;--r:6deg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 58V28M22 32V10a4 4 0 0 1 8 0v18M30 26V6a4 4 0 0 1 8 0v22M38 26V10a4 4 0 0 1 8 0v20M46 28v-6a4 4 0 0 1 8 0v14c0 12-8 22-20 22h-4c-8 0-12-4-16-10l-6-10a4 4 0 0 1 6-4l6 6"/></svg>
-  <!-- Livro (Carta dos Direitos) -->
-  <svg style="top:4%;right:24%;width:110px;--r:4deg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 14C26 9 16 8 6 10v40c10-2 20-1 26 4 6-5 16-6 26-4V10c-10-2-20-1-26 4zM32 14v40M12 20h12M12 28h12M40 20h12M40 28h12"/></svg>
-</div>
-
+<div class="conteudo">
 <header>
+  <svg class="hemiciclo" id="hemiciclo" viewBox="0 0 400 214" aria-hidden="true"></svg>
   <div class="topo">
+    <svg class="bandeira" viewBox="0 0 100 100" role="img" aria-label="Círculo de doze estrelas">
+      <defs><path id="e" d="M0,-7 L1.65,-2.27 6.66,-2.16 2.66,.87 4.12,5.66 0,2.8 -4.12,5.66 -2.66,.87 -6.66,-2.16 -1.65,-2.27Z"/></defs>
+      <g transform="translate(50 50)" id="estrelas"></g>
+    </svg>
     <div>
       <p class="etiqueta">Clube Europeu</p>
       <h1>Jogos para conhecer a União Europeia</h1>
-      <p class="lead">Viagens, missões e desafios sobre a Europa, a democracia e os valores que nos unem: a dignidade, a liberdade, a igualdade e os direitos de cada cidadão.</p>
-      <ul class="valores" aria-label="Valores da União Europeia">
-        <li>Dignidade humana</li><li>Liberdade</li><li>Democracia</li>
-        <li>Igualdade</li><li>Estado de direito</li><li>Direitos humanos</li>
-      </ul>
+      <p class="lead">Viagens, missões e desafios sobre a Europa, a democracia, os direitos e as liberdades que nos unem.</p>
     </div>
-    <!-- Círculo de 12 estrelas -->
-    <svg class="estrelas" viewBox="0 0 200 200" role="img" aria-label="Círculo de doze estrelas douradas">
-      <defs><path id="e" d="M0,-10 L2.35,-3.24 9.51,-3.09 3.8,1.24 5.88,8.09 0,4 -5.88,8.09 -3.8,1.24 -9.51,-3.09 -2.35,-3.24Z"/></defs>
-      <g transform="translate(100 100)">
-        <use href="#e" transform="rotate(0) translate(0 -70) rotate(0)" style="animation-delay:0s"/>
-        <use href="#e" transform="rotate(30) translate(0 -70) rotate(-30)" style="animation-delay:.33s"/>
-        <use href="#e" transform="rotate(60) translate(0 -70) rotate(-60)" style="animation-delay:.66s"/>
-        <use href="#e" transform="rotate(90) translate(0 -70) rotate(-90)" style="animation-delay:1s"/>
-        <use href="#e" transform="rotate(120) translate(0 -70) rotate(-120)" style="animation-delay:1.33s"/>
-        <use href="#e" transform="rotate(150) translate(0 -70) rotate(-150)" style="animation-delay:1.66s"/>
-        <use href="#e" transform="rotate(180) translate(0 -70) rotate(-180)" style="animation-delay:2s"/>
-        <use href="#e" transform="rotate(210) translate(0 -70) rotate(-210)" style="animation-delay:2.33s"/>
-        <use href="#e" transform="rotate(240) translate(0 -70) rotate(-240)" style="animation-delay:2.66s"/>
-        <use href="#e" transform="rotate(270) translate(0 -70) rotate(-270)" style="animation-delay:3s"/>
-        <use href="#e" transform="rotate(300) translate(0 -70) rotate(-300)" style="animation-delay:3.33s"/>
-        <use href="#e" transform="rotate(330) translate(0 -70) rotate(-330)" style="animation-delay:3.66s"/>
-      </g>
-    </svg>
   </div>
 </header>
 
@@ -169,7 +111,7 @@ footer{max-width:1180px; margin:0 auto; padding:40px 24px 48px; color:var(--suav
     <p>8 jogos · funcionam no navegador, sem instalar nada</p>
   </div>
 
-  <div class="grelha">
+<div class="grelha">
 
     <article class="cartao">
       <div class="faixa" style="--c1:#0b2a7a;--c2:#1d4fc4">
@@ -258,12 +200,12 @@ footer{max-width:1180px; margin:0 auto; padding:40px 24px 48px; color:var(--suav
     <article class="cartao">
       <div class="faixa" style="--c1:#0e4f9e;--c2:#5aa0e6">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/><path d="M7 5v4M5 7h4M17 15v4M15 17h4"/></svg>
-        <span class="tema">Pão por Deus</span>
+        <span class="tema">Tradição</span>
       </div>
       <div class="corpo">
-        <h3>Lisboa em Azulejo 3D</h3>
-        <p>Vista de Lisboa em 3D, inspirada num painel de azulejos de cerca de 1700. Podes rodar e aproximar a vista.</p>
-        <a class="botao" href="Pao_por_Deus/Lisboa_em_Azulejo_3D_offline.html">Abrir jogo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <h3>Pão por Deus: Largo da Sé, 1756</h3>
+        <p>Lisboa, 1 de novembro de 1756, um ano depois do terramoto. Segue em 3D as crianças que percorrem as casas arruinadas a pedir o Pão por Deus.</p>
+        <a class="botao" href="Pao_por_Deus/Largo_da_SE_1756/Largo%20da%20S%C3%A9%2C%201756.html">Abrir jogo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
     </article>
 
@@ -278,6 +220,133 @@ footer{max-width:1180px; margin:0 auto; padding:40px 24px 48px; color:var(--suav
 </section>
 
 <footer>Clube Europeu · Unida na diversidade</footer>
+</div>
 
+<script src="assets/europa.js"></script>
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  var calmo=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- 12 estrelas ---- */
+  var g=document.getElementById("estrelas");
+  for(var i=0;i<12;i++){var u=document.createElementNS(NS,"use");u.setAttribute("href","#e");
+    var a=i*30;u.setAttribute("transform","rotate("+a+") translate(0 -36) rotate("+(-a)+")");g.appendChild(u);}
+
+  /* ---- Hemiciclo estilizado do Parlamento Europeu ---- */
+  var h=document.getElementById("hemiciclo"),cx=200,cy=208,grupos=[0.13,0.20,0.27,0.40,0.55,0.70,0.83,1];
+  for(var r=58;r<=196;r+=15.5){
+    var n=Math.round(Math.PI*r/10.6);
+    for(var k=0;k<=n;k++){
+      var t=k/n,ang=Math.PI*(1-t),c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",(cx+r*Math.cos(ang)).toFixed(1));c.setAttribute("cy",(cy-r*Math.sin(ang)).toFixed(1));
+      c.setAttribute("r","3.4");
+      var gi=0;while(t>grupos[gi])gi++;c.setAttribute("class","g"+(gi%5));
+      c.style.animationDelay=(t*2.4+(r-58)/400).toFixed(2)+"s";h.appendChild(c);
+    }
+  }
+
+  /* ---- Fundo: mapa da Europa com países, instituições e valores em movimento ---- */
+  var cv=document.getElementById("rede"),ctx=cv.getContext("2d");
+  if(!ctx||!window.EUROPA)return;
+  var escuro=window.matchMedia("(prefers-color-scheme: dark)");
+  var W,H,dpr,esc,ox,oy,mapa,rato={x:-1e4,y:-1e4};
+  var paises=EUROPA.filter(function(p){return p.c;}).map(function(p,i){
+    return {n:p.n,ax:p.c[0],ay:p.c[1],f1:.00035+((i*37)%11)*.00004,f2:.0003+((i*53)%13)*.00003,ph:i*1.7,x:0,y:0};});
+  var INST=["Parlamento Europeu","Comissão Europeia","Conselho Europeu","Conselho da UE","Tribunal de Justiça da UE","Banco Central Europeu","Tribunal de Contas Europeu","Provedor de Justiça Europeu"];
+  var VAL=["Liberdade","Democracia","Dignidade humana","Igualdade","Estado de direito","Direitos humanos","Solidariedade","Cidadania","Justiça","Liberdade de expressão","Não discriminação","Pluralismo","Tolerância","Paz"];
+  var atomos=[];
+  function cor(){return escuro.matches?
+    {mapaEU:"rgba(120,150,255,.10)",mapa:"rgba(160,180,255,.035)",borda:"rgba(140,165,255,.22)",no:"255,204,0",linha:"130,160,255",txt:"rgba(190,205,255,.75)",inst:"rgba(255,214,90,.9)",val:"rgba(170,190,255,.55)",nucleo:"255,204,0"}:
+    {mapaEU:"rgba(29,79,196,.11)",mapa:"rgba(13,22,51,.04)",borda:"rgba(29,79,196,.28)",no:"230,170,0",linha:"29,79,196",txt:"rgba(11,42,122,.72)",inst:"rgba(11,42,122,.9)",val:"rgba(29,79,196,.55)",nucleo:"29,79,196"};}
+  var C=cor();
+
+  function desenharMapa(){
+    mapa=document.createElement("canvas");mapa.width=W*dpr;mapa.height=H*dpr;
+    var m=mapa.getContext("2d");m.setTransform(dpr*esc,0,0,dpr*esc,dpr*ox,dpr*oy);
+    m.lineWidth=1/esc;m.lineJoin="round";
+    EUROPA.forEach(function(p){var pa=new Path2D(p.d);m.fillStyle=p.eu?C.mapaEU:C.mapa;m.fill(pa);
+      m.strokeStyle=C.borda;m.globalAlpha=p.eu?1:.5;m.stroke(pa);m.globalAlpha=1;});
+  }
+  function criarAtomos(){
+    atomos=[];var area=W*H,nInst=W<700?5:8,nVal=W<700?6:Math.min(14,Math.round(area/110000));
+    function novo(txt,tipo,i){var v=tipo==="inst"?.018:.026,a=Math.random()*Math.PI*2;
+      return {t:txt,tipo:tipo,x:Math.random()*W,y:Math.random()*H,vx:Math.cos(a)*v,vy:Math.sin(a)*v,ph:Math.random()*6.28,
+        e:tipo==="inst"?2+(i%2):0,rr:tipo==="inst"?26+(i%3)*5:0};}
+    INST.slice(0,nInst).forEach(function(t,i){atomos.push(novo(t,"inst",i));});
+    VAL.slice().sort(function(){return Math.random()-.5;}).slice(0,nVal).forEach(function(t,i){atomos.push(novo(t,"val",i));});
+  }
+  function ajustar(){
+    dpr=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;
+    cv.width=W*dpr;cv.height=H*dpr;
+    /* área central da Europa no sistema de coordenadas do mapa */
+    esc=Math.max(W/600,H/500);if(W<700)esc=Math.max(W/380,H/560);
+    ox=W/2-(W<700?430:400)*esc;oy=H/2-375*esc;
+    C=cor();desenharMapa();criarAtomos();
+  }
+  function px(x){return ox+x*esc;} function py(y){return oy+y*esc;}
+
+  var pulsos=[];
+  function quadro(ts){
+    var t=ts||0;
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+    var dx=calmo?0:Math.sin(t*.00006)*14,dy=calmo?0:Math.cos(t*.00005)*8;
+    ctx.drawImage(mapa,dx,dy,W,H);
+    /* países: núcleos que oscilam à volta da capital */
+    var amp=calmo?0:5;
+    paises.forEach(function(p){p.x=px(p.ax)+dx+Math.sin(t*p.f1+p.ph)*amp;p.y=py(p.ay)+dy+Math.cos(t*p.f2+p.ph)*amp;});
+    var lim=Math.max(95,esc*80),i,j,a,b,d;
+    ctx.lineWidth=1;
+    for(i=0;i<paises.length;i++)for(j=i+1;j<paises.length;j++){
+      a=paises[i];b=paises[j];d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<lim){ctx.strokeStyle="rgba("+C.linha+","+(0.28*(1-d/lim)).toFixed(3)+")";ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        if(!calmo&&Math.random()<.0009&&pulsos.length<26)pulsos.push({a:a,b:b,k:0});}
+    }
+    /* pulsos de "comunicação" entre países */
+    pulsos=pulsos.filter(function(q){q.k+=.012;if(q.k>=1)return false;
+      var x=q.a.x+(q.b.x-q.a.x)*q.k,y=q.a.y+(q.b.y-q.a.y)*q.k;
+      ctx.fillStyle="rgba("+C.no+","+(1-Math.abs(q.k-.5)*1.6).toFixed(2)+")";ctx.beginPath();ctx.arc(x,y,2.2,0,6.283);ctx.fill();return true;});
+    /* átomos: instituições e valores à deriva */
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    atomos.forEach(function(o){
+      if(!calmo){o.x+=o.vx*16;o.y+=o.vy*16;
+        if(o.x<-120)o.x=W+120;if(o.x>W+120)o.x=-120;if(o.y<-40)o.y=H+40;if(o.y>H+40)o.y=-40;}
+      /* ligações aos países próximos */
+      paises.forEach(function(p){var d=Math.hypot(o.x-p.x,o.y-p.y),L=o.tipo==="inst"?170:120;
+        if(d<L){ctx.strokeStyle="rgba("+C.linha+","+((o.tipo==="inst"?.22:.14)*(1-d/L)).toFixed(3)+")";ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(p.x,p.y);ctx.stroke();}});
+      if(o.tipo==="inst"){
+        var rr=o.rr;ctx.strokeStyle="rgba("+C.nucleo+",.22)";
+        for(var e=0;e<o.e;e++){var rot=e*Math.PI/o.e+o.ph;
+          ctx.beginPath();ctx.ellipse(o.x,o.y,rr*1.9,rr*.55,rot,0,6.283);ctx.stroke();
+          var an=t*.0012*(e%2?-1:1)+o.ph*e,ex=Math.cos(an)*rr*1.9,ey=Math.sin(an)*rr*.55;
+          ctx.fillStyle="rgba("+C.no+",.95)";ctx.beginPath();
+          ctx.arc(o.x+ex*Math.cos(rot)-ey*Math.sin(rot),o.y+ex*Math.sin(rot)+ey*Math.cos(rot),2.6,0,6.283);ctx.fill();}
+        ctx.fillStyle="rgba("+C.nucleo+",.9)";ctx.beginPath();ctx.arc(o.x,o.y,3.4,0,6.283);ctx.fill();
+        ctx.font="700 12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";ctx.fillStyle=C.inst;ctx.fillText(o.t,o.x,o.y+15);
+      }else{
+        ctx.font="italic 600 "+(13+Math.sin(o.ph)*2).toFixed(0)+"px Georgia,'Times New Roman',serif";ctx.fillStyle=C.val;ctx.fillText(o.t,o.x,o.y);
+      }
+    });
+    /* países por cima */
+    ctx.font="600 11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
+    paises.forEach(function(p){
+      var perto=Math.hypot(p.x-rato.x,p.y-rato.y)<110,pul=calmo?0:(Math.sin(t*.002+p.ph)+1)/2;
+      ctx.fillStyle="rgba("+C.no+","+(.18+pul*.2).toFixed(2)+")";ctx.beginPath();ctx.arc(p.x,p.y,(perto?9:6)+pul*2,0,6.283);ctx.fill();
+      ctx.fillStyle="rgba("+C.no+",1)";ctx.beginPath();ctx.arc(p.x,p.y,perto?3.6:2.6,0,6.283);ctx.fill();
+      ctx.fillStyle=C.txt;if(perto){ctx.font="700 13px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";}
+      ctx.fillText(p.n,p.x,p.y-12);if(perto)ctx.font="600 11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif";
+      if(perto){ctx.strokeStyle="rgba("+C.no+",.5)";ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(rato.x,rato.y);ctx.stroke();}
+    });
+    if(!calmo)requestAnimationFrame(quadro);
+  }
+  window.addEventListener("resize",function(){ajustar();if(calmo)quadro(0);});
+  window.addEventListener("pointermove",function(e){rato.x=e.clientX;rato.y=e.clientY;},{passive:true});
+  window.addEventListener("pointerleave",function(){rato.x=rato.y=-1e4;});
+  if(escuro.addEventListener)escuro.addEventListener("change",function(){C=cor();desenharMapa();});
+  ajustar();
+  if(calmo)quadro(0);else requestAnimationFrame(quadro);
+})();
+</script>
 </body>
 </html>
