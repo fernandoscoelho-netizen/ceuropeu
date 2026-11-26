@@ -75,16 +75,19 @@
 
     <!-- Câmara -->
     <div class="controlos-camara" role="group" aria-label="Câmara">
-      <button type="button" id="camEsq" title="Rodar a vista (Q)" aria-label="Rodar a vista para a esquerda">⟲</button>
+      <button type="button" id="camEsq" title="Rodar para a esquerda (Q)" aria-label="Rodar a vista para a esquerda">⟲</button>
+      <button type="button" id="camDir" title="Rodar para a direita (R)" aria-label="Rodar a vista para a direita">⟳</button>
+      <button type="button" id="camCima" title="Ver mais de cima (T)" aria-label="Inclinar a câmara para cima">▲</button>
+      <button type="button" id="camBaixo" title="Ver mais de lado (G)" aria-label="Inclinar a câmara para baixo">▼</button>
+      <button type="button" id="camMais" title="Aproximar (+ ou roda do rato)" aria-label="Aproximar">＋</button>
+      <button type="button" id="camMenos" title="Afastar (− ou roda do rato)" aria-label="Afastar">－</button>
+      <button type="button" id="camGeral" title="Vista geral da sala (V)" aria-label="Vista geral da sala">⛶</button>
       <button type="button" id="camCentro" title="Repor a vista" aria-label="Repor a vista">⌂</button>
-      <button type="button" id="camDir" title="Rodar a vista (R)" aria-label="Rodar a vista para a direita">⟳</button>
-      <button type="button" id="camMais" title="Aproximar (+)" aria-label="Aproximar">＋</button>
-      <button type="button" id="camMenos" title="Afastar (−)" aria-label="Afastar">－</button>
     </div>
 
     <div class="dica-controlos" id="dicaControlos">
-      <span class="so-rato">Clica no chão para andar · clica num objeto para o investigar · arrasta para rodar</span>
-      <span class="so-toque">Toca no chão para andar · toca num objeto para o investigar · arrasta para rodar</span>
+      <span class="so-rato">Clica no chão para andar · clica num objeto para o investigar · arrasta para rodar e inclinar · roda do rato para o zoom</span>
+      <span class="so-toque">Toca no chão para andar · toca num objeto para o investigar · arrasta para rodar · dois dedos para o zoom</span>
       <button type="button" class="fechar-dica" id="fecharDica" aria-label="Esconder a dica">✕</button>
     </div>
 
@@ -345,9 +348,9 @@
           <div class="table-responsive">
             <table class="table table-sm tabela-tema mb-3">
               <tbody>
-                <tr><th scope="row">Rato</th><td>Clica no chão para andar; clica num objeto para ires até ele e o investigares. Arrasta para rodar a vista; a roda do rato aproxima ou afasta.</td></tr>
-                <tr><th scope="row">Ecrã tátil</th><td>Toca no chão para andar e num objeto para o investigar. Arrasta com um dedo para rodar; afasta dois dedos para aproximar.</td></tr>
-                <tr><th scope="row">Teclado</th><td>Setas ou W A S D para andar · E (ou Enter) para usar o objeto mais próximo · Q / R rodam a vista · M abre o mapa · C abre o caderno · H abre esta ajuda</td></tr>
+                <tr><th scope="row">Rato</th><td>Clica no chão para andar; clica num objeto para ires até ele e o investigares. Arrasta para rodar a vista (esquerda/direita) e inclinar a câmara (cima/baixo); a roda do rato aproxima ou afasta. O botão ⛶ mostra a sala toda.</td></tr>
+                <tr><th scope="row">Ecrã tátil</th><td>Toca no chão para andar e num objeto para o investigar. Arrasta com um dedo para rodar e inclinar; afasta ou junta dois dedos para o zoom. Também há botões de câmara no ecrã.</td></tr>
+                <tr><th scope="row">Teclado</th><td>Setas ou W A S D para andar · E (ou Enter) para usar o objeto mais próximo · Q / R rodam a vista · T / G inclinam a câmara · + / − zoom · V vista geral · M abre o mapa · C abre o caderno · H abre esta ajuda</td></tr>
                 <tr><th scope="row">Painel «Nesta sala»</th><td>Lista de todos os objetos, estações e saídas da sala, com o estado de cada um. Escolher um item leva-te até ele. É também a alternativa acessível ao mundo 3D.</td></tr>
               </tbody>
             </table>

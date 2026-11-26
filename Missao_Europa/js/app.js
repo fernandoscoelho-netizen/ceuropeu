@@ -495,8 +495,18 @@ window.App = (function () {
       b.setAttribute("aria-expanded", String(!aberto)); $("corpoMissao").hidden = aberto;
     });
     $("promptInteragir").addEventListener("click", () => window.Mundo && window.Mundo.interagirProximo());
-    const cam = { camEsq: () => window.Mundo.rodar(.35), camDir: () => window.Mundo.rodar(-.35), camMais: () => window.Mundo.zoom(-1.5), camMenos: () => window.Mundo.zoom(1.5), camCentro: () => window.Mundo.centrar() };
-    Object.keys(cam).forEach(k => $(k).addEventListener("click", () => window.Mundo && window.Mundo.ativo && cam[k]()));
+    const cam = { camEsq: () => window.Mundo.rodar(.3), camDir: () => window.Mundo.rodar(-.3), camCima: () => window.Mundo.inclinar(.12), camBaixo: () => window.Mundo.inclinar(-.12),
+      camMais: () => window.Mundo.zoom(-2), camMenos: () => window.Mundo.zoom(2) };
+    Object.keys(cam).forEach(k => {
+      // carregar e manter premido repete a ação
+      let t = null;
+      const parar = () => { clearInterval(t); t = null; };
+      $(k).addEventListener("pointerdown", (e) => { if (!(window.Mundo && window.Mundo.ativo)) return; e.preventDefault(); cam[k](); parar(); t = setInterval(cam[k], 110); });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(ev => $(k).addEventListener(ev, parar));
+      $(k).addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && window.Mundo && window.Mundo.ativo) { e.preventDefault(); cam[k](); } });
+    });
+    $("camGeral").addEventListener("click", () => window.Mundo && window.Mundo.ativo && window.Mundo.vistaGeral());
+    $("camCentro").addEventListener("click", () => window.Mundo && window.Mundo.ativo && window.Mundo.centrar());
     try { if (localStorage.getItem("missaoEuropa_dica") === "x") $("dicaControlos").hidden = true; } catch (e) {}
     $("fecharDica").addEventListener("click", () => { $("dicaControlos").hidden = true; try { localStorage.setItem("missaoEuropa_dica", "x"); } catch (e) {} });
     // em ecrãs pequenos o painel da sala começa recolhido

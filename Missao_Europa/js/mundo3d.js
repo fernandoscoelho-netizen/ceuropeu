@@ -22,7 +22,9 @@
   let alvo = null, presoT = 0, ultimaDist = 0;
   let proximo = null, hover = null;
   const teclas = new Set();
-  let yaw = 0, dist = 17, yawAlvo = 0;
+  // câmara orbital: yaw (esquerda/direita), pitch (cima/baixo), dist (zoom); «geral» enquadra a sala toda
+  const CAM = { yaw: 0, pitch: .98, dist: 18, yawA: 0, pitchA: .98, distA: 18, geral: false, ZMIN: 5, ZMAX: 34, PMIN: .18, PMAX: 1.5 };
+  const limCam = () => { CAM.pitchA = T.MathUtils.clamp(CAM.pitchA, CAM.PMIN, CAM.PMAX); CAM.distA = T.MathUtils.clamp(CAM.distA, CAM.ZMIN, CAM.ZMAX); };
   const camPos = new T.Vector3(0, 9, 14), camOlhar = new T.Vector3();
   let particulas = [];
   let marcaAlvo = null;
@@ -238,6 +240,7 @@
     });
   }
   function parquet(c, W, H, cores) {
+    c.fillStyle = "#5a3a20"; c.fillRect(0, 0, W, H);
     const lw = 120, lh = 30;
     for (let y = 0; y < H; y += lh) for (let x = -(y / lh % 4) * 30; x < W; x += lw) {
       c.fillStyle = cores[Math.floor(Math.random() * cores.length)]; c.fillRect(x, y, lw - 2, lh - 2);
@@ -245,6 +248,7 @@
     ruido(c, W, H, 15000, .06);
   }
   function tabuas(c, W, H, base) {
+    c.fillStyle = "#2a1a0d"; c.fillRect(0, 0, W, H);
     for (let y = 0; y < H; y += 44) {
       let x = -Math.random() * 300;
       while (x < W) {
@@ -937,7 +941,7 @@
     const base = new T.Mesh(new T.BoxGeometry(largura + .6, .5, prof + .6), mat(0x0a1430)); base.position.set(0, -.26, (SALA.z0 + SALA.z1) / 2); grupo.add(base);
     // paredes
     const tParede = texParede(pal.cor, pal.acento, pal.estilo);
-    const mParede = () => mat(0xffffff, { map: tParede, roughness: .85, transparent: true, unico: true });
+    const mParede = () => mat(0xffffff, { map: tParede, roughness: .9, unico: true });
     const espessura = .3;
     const P = [
       { w: largura + espessura * 2, h: SALA.h, x: 0, z: SALA.z0 - espessura / 2, n: [0, 1], lado: "n" },
@@ -948,7 +952,7 @@
     P.forEach(p => {
       const lateral = p.lado === "o" || p.lado === "e";
       const m = new T.Mesh(new T.BoxGeometry(lateral ? espessura : p.w, p.h, lateral ? p.w : espessura), mParede());
-      m.position.set(p.x, p.h / 2, p.z); m.receiveShadow = true; m.castShadow = p.lado !== "s";
+      m.position.set(p.x, p.h / 2, p.z); m.receiveShadow = true; m.castShadow = false;
       grupo.add(m); info.paredes.push({ m, n: p.n, lado: p.lado, x: p.x, z: p.z });
       // rodapé e cornija douradas
       const r = caixa(lateral ? espessura + .04 : p.w, .12, lateral ? p.w : espessura + .04, mat(pal.acento, { metalness: .5, roughness: .4 }), p.x, p.h - .06, p.z, grupo);
@@ -990,7 +994,7 @@
     const tam = TELEMOVEL ? 1024 : 2048;
     sol.shadow.mapSize.set(tam, tam);
     Object.assign(sol.shadow.camera, { left: -14, right: 14, top: 12, bottom: -12, near: 1, far: 40 });
-    sol.shadow.bias = -.0004; sol.shadow.normalBias = .02;
+    sol.shadow.bias = -.0006; sol.shadow.normalBias = .05;
     grupo.add(sol, sol.target);
     const preench = new T.DirectionalLight(new T.Color(s.acento), .35); preench.position.set(8, 6, -6); grupo.add(preench);
     // candeeiros de parede (pontos de luz quentes)
@@ -1002,7 +1006,7 @@
     return info;
   }
   function arandela(g, x, z) {
-    caixa(.18, .3, .06, M.latao, x, 3.25, z + .03, g);
+    caixa(.18, .3, .06, M.latao, x, 3.25, z + .05, g);
     const b = esf(.12, mat(0xfff1c0, { emissive: 0xffd27a, emissiveIntensity: 1.4 }), x, 3.45, z + .16, g, 12); b.castShadow = false;
   }
 
@@ -1036,7 +1040,10 @@
   }
   function estante(g, x, z, rotY, w = 2.2, h = 2.6) {
     const e = new T.Group(); e.position.set(x, 0, z); e.rotation.y = rotY; g.add(e);
-    caixa(w, h, .42, M.madeiraEsc, 0, h / 2, 0, e);
+    // estante aberta: fundo, laterais e topo (os livros ficam à vista)
+    caixa(w, h, .04, M.madeiraEsc, 0, h / 2, -.19, e);
+    [-1, 1].forEach(k => caixa(.06, h, .42, M.madeiraEsc, k * (w / 2 - .03), h / 2, 0, e));
+    caixa(w, .06, .44, M.madeiraEsc, 0, h - .03, 0, e);
     const r = aleatorio(Math.round(x * 13 + z * 7 + 99));
     for (let p = 0; p < 4; p++) {
       const y = .25 + p * (h - .3) / 4;
@@ -1045,7 +1052,7 @@
       while (xx < w / 2 - .15) {
         const bw = .05 + r() * .06, bh = .32 + r() * .16;
         const cor = new T.Color().setHSL(r(), .45, .25 + r() * .2);
-        const l = caixa(bw, bh, .26, mat(cor, { roughness: .8 }), xx + bw / 2, y + bh / 2 + .015, .06, e); l.castShadow = false;
+        const l = caixa(bw, bh, .28, mat(cor, { roughness: .8 }), xx + bw / 2, y + bh / 2 + .015, .0, e); l.castShadow = false;
         xx += bw + .008;
       }
     }
@@ -1321,7 +1328,7 @@
     contentor.appendChild(renderer.domElement);
     cena = new T.Scene();
     cena.background = new T.Color(0x06102e);
-    cena.fog = new T.Fog(0x06102e, 26, 48);
+    cena.fog = new T.Fog(0x06102e, 45, 90);
     camara = new T.PerspectiveCamera(42, 1, .1, 120);
     relogio = new T.Clock();
     materiaisBase();
@@ -1359,7 +1366,7 @@
     jog.x = toX(pos.x); jog.z = toZ(pos.y);
     jog.dir = Math.PI; alvo = null; particulas.forEach(p => cena.remove(p.s)); particulas = [];
     teclas.clear(); hover = null; proximo = null; marcaAlvo.visible = false;
-    yaw = yawAlvo = 0;
+    if (CAM.geral) { CAM.geral = false; }
     atualizarAparencia();
     ajustarCamara(true);
     if (elFade) { elFade.classList.add("ativo"); setTimeout(() => elFade.classList.remove("ativo"), 60); }
@@ -1368,14 +1375,24 @@
   function ajustarCamara(imediato) {
     const largura = contentor.clientWidth / Math.max(1, contentor.clientHeight);
     const estreito = largura < 1;
-    const d = dist * (estreito ? .95 : 1);
-    // segue o jogador, mas mantém a sala enquadrada (em ecrãs estreitos segue mais de perto)
-    const fx = T.MathUtils.lerp(0, jog.x, estreito ? .92 : .6), fz = T.MathUtils.lerp(-.6, jog.z, estreito ? .6 : .35);
-    const alvoOlhar = new T.Vector3(fx, .6, fz - .8);
-    const pos = new T.Vector3(fx + Math.sin(yaw) * d * .62, d * .9, fz + Math.cos(yaw) * d * .62);
+    let alvoOlhar;
+    if (CAM.geral) alvoOlhar = new T.Vector3(0, 0, .6);
+    else {
+      const fx = T.MathUtils.lerp(0, jog.x, estreito ? .92 : .6), fz = T.MathUtils.lerp(-.6, jog.z, estreito ? .6 : .35);
+      alvoOlhar = new T.Vector3(fx, .6, fz);
+    }
+    const d = CAM.dist, cp = Math.cos(CAM.pitch);
+    const pos = new T.Vector3(alvoOlhar.x + Math.sin(CAM.yaw) * cp * d, alvoOlhar.y + Math.sin(CAM.pitch) * d, alvoOlhar.z + Math.cos(CAM.yaw) * cp * d);
     if (imediato) { camPos.copy(pos); camOlhar.copy(alvoOlhar); }
-    else { camPos.lerp(pos, .08); camOlhar.lerp(alvoOlhar, .1); }
+    else { camPos.lerp(pos, .12); camOlhar.lerp(alvoOlhar, .12); }
     camara.position.copy(camPos); camara.lookAt(camOlhar);
+  }
+  function vistaGeral(ligar) {
+    CAM.geral = ligar === undefined ? !CAM.geral : ligar;
+    const largura = contentor.clientWidth / Math.max(1, contentor.clientHeight);
+    if (CAM.geral) { CAM.yawA = 0; CAM.pitchA = 1.12; CAM.distA = largura < 1 ? 34 : 25; }
+    else { CAM.yawA = 0; CAM.pitchA = .98; CAM.distA = 18; }
+    document.body.classList.toggle("vista-geral", CAM.geral);
   }
 
   function colide(x, z) {
@@ -1425,7 +1442,7 @@
     if (ix || iz) {
       alvo = null; marcaAlvo.visible = false;
       const l = Math.hypot(ix, iz); ix /= l; iz /= l;
-      const c = Math.cos(yaw), s = Math.sin(yaw);
+      const c = Math.cos(CAM.yaw), s = Math.sin(CAM.yaw);
       jog.movendo = moverPara(ix * c + iz * s, -ix * s + iz * c, dt);
     } else if (alvo && ativo) {
       const dx = alvo.x - jog.x, dz = alvo.z - jog.z, d = Math.hypot(dx, dz);
@@ -1503,15 +1520,19 @@
     });
 
     // câmara
-    yaw += (yawAlvo - yaw) * .12;
+    CAM.yaw += (CAM.yawA - CAM.yaw) * .14; CAM.pitch += (CAM.pitchA - CAM.pitch) * .14; CAM.dist += (CAM.distA - CAM.dist) * .14;
     ajustarCamara(false);
     // paredes entre a câmara e a sala ficam transparentes
     salaAtual.paredes.forEach(p => {
       const fora = p.n[0] ? (p.n[0] > 0 ? camara.position.x < p.x : camara.position.x > p.x) : (p.n[1] > 0 ? camara.position.z < p.z : camara.position.z > p.z);
-      const op = fora && p.lado !== "n" ? .14 : 1;
-      p.m.material.opacity += (op - p.m.material.opacity) * .15;
-      p.m.material.depthWrite = p.m.material.opacity > .9;
-      p.m.castShadow = p.lado !== "s";
+      const op = fora ? .12 : 1;
+      const m = p.m.material;
+      m.opacity += (op - m.opacity) * .15;
+      if (m.opacity > .985) m.opacity = 1;
+      const transp = m.opacity < 1;
+      if (m.transparent !== transp) { m.transparent = transp; m.needsUpdate = true; }
+      m.depthWrite = !transp;
+      (p.extra || []).forEach(x => { x.visible = !fora; });
     });
     renderer.render(cena, camara);
     posicionarEtiquetas();
@@ -1564,20 +1585,20 @@
     const toques = new Map(); let pinch = null;
     el.addEventListener("pointerdown", e => {
       toques.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (toques.size === 2) { const [a, b] = [...toques.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), dist }; }
-      baixo = { x: e.clientX, y: e.clientY, yaw: yawAlvo }; arrastou = false;
+      if (toques.size === 2) { const [a, b] = [...toques.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), dist: CAM.distA }; }
+      baixo = { x: e.clientX, y: e.clientY, yaw: CAM.yawA, pitch: CAM.pitchA }; arrastou = false;
       el.setPointerCapture(e.pointerId);
     });
     el.addEventListener("pointermove", e => {
       if (toques.has(e.pointerId)) toques.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (pinch && toques.size === 2) {
         const [a, b] = [...toques.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
-        dist = T.MathUtils.clamp(pinch.dist * pinch.d / d, 8, 19); arrastou = true; return;
+        CAM.distA = pinch.dist * pinch.d / d; limCam(); arrastou = true; return;
       }
       if (baixo) {
         const dx = e.clientX - baixo.x;
         if (Math.abs(dx) > 6 || Math.abs(e.clientY - baixo.y) > 6) arrastou = true;
-        if (arrastou) yawAlvo = T.MathUtils.clamp(baixo.yaw - dx * .005, -.85, .85);
+        if (arrastou) { CAM.yawA = baixo.yaw - dx * .006; CAM.pitchA = baixo.pitch + (e.clientY - baixo.y) * .005; limCam(); }
         return;
       }
       if (e.pointerType === "mouse") {
@@ -1607,7 +1628,7 @@
     el.addEventListener("pointerup", fim);
     el.addEventListener("pointercancel", e => { toques.delete(e.pointerId); baixo = null; pinch = null; });
     el.addEventListener("pointerleave", () => { hover = null; });
-    el.addEventListener("wheel", e => { e.preventDefault(); dist = T.MathUtils.clamp(dist + Math.sign(e.deltaY) * .9, 8, 19); }, { passive: false });
+    el.addEventListener("wheel", e => { e.preventDefault(); CAM.distA *= e.deltaY > 0 ? 1.1 : 1 / 1.1; limCam(); }, { passive: false });
     window.addEventListener("keydown", e => {
       const tag = (e.target.tagName || "").toLowerCase();
       if (["input", "textarea", "select"].includes(tag) || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -1618,10 +1639,13 @@
         e.preventDefault(); teclas.add(k);
       } else if ((k === "e" || ((k === "enter" || k === " ") && (tag === "body" || e.target === contentor || e.target === el)))) {
         e.preventDefault(); Mundo.interagirProximo();
-      } else if (k === "q") { yawAlvo = T.MathUtils.clamp(yawAlvo + .3, -.85, .85); }
-      else if (k === "r") { yawAlvo = T.MathUtils.clamp(yawAlvo - .3, -.85, .85); }
-      else if (k === "+" || k === "=") dist = Math.max(8, dist - 1);
-      else if (k === "-") dist = Math.min(19, dist + 1);
+      } else if (k === "q") Mundo.rodar(.35);
+      else if (k === "r") Mundo.rodar(-.35);
+      else if (k === "t") Mundo.inclinar(.15);
+      else if (k === "g") Mundo.inclinar(-.15);
+      else if (k === "+" || k === "=") Mundo.zoom(-2);
+      else if (k === "-") Mundo.zoom(2);
+      else if (k === "v") vistaGeral();
     });
     window.addEventListener("keyup", e => teclas.delete(e.key.toLowerCase()));
     window.addEventListener("blur", () => teclas.clear());
@@ -1718,9 +1742,11 @@
     },
     celebrar() { if (ok) explosao(new T.Vector3(jog.x, 1.6, jog.z), 46, 0xffcc00); },
     inspecionar, pararInspecao,
-    rodar(d) { yawAlvo = T.MathUtils.clamp(yawAlvo + d, -.85, .85); },
-    zoom(d) { dist = T.MathUtils.clamp(dist + d, 8, 19); },
-    centrar() { yawAlvo = 0; dist = 17; }
+    rodar(d) { CAM.yawA += d; },
+    inclinar(d) { CAM.pitchA += d; limCam(); },
+    zoom(d) { CAM.distA += d; limCam(); },
+    vistaGeral() { vistaGeral(); },
+    centrar() { vistaGeral(false); }
   };
   let texEstrela = null;
   function explosao(pos, n, cor) {

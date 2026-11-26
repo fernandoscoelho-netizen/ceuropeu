@@ -134,6 +134,8 @@ body.jogo3d { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; di
 .controlos-camara { right: 14px; bottom: 14px; display: flex; gap: 2px; padding: 4px; }
 .controlos-camara button { width: 38px; height: 38px; border: 0; border-radius: 9px; background: transparent; color: #fff; font-size: 1.05rem; }
 .controlos-camara button:hover { background: rgba(255, 255, 255, .15); }
+.controlos-camara button { touch-action: none; user-select: none; }
+body.vista-geral #camGeral { background: var(--ouro); color: #10204f; }
 .dica-controlos { left: 14px; bottom: 14px; padding: .4rem .5rem .4rem .8rem; font-size: .8rem; color: var(--texto-suave); display: flex; align-items: center; gap: .5rem; max-width: 46%; }
 .fechar-dica { background: none; border: 0; color: var(--texto-suave); width: 28px; height: 28px; border-radius: 6px; }
 .so-toque { display: none; }
@@ -210,7 +212,7 @@ body.jogo3d { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; di
   .cartao-missao .chips { margin-bottom: 0; }
   .painel-sala { flex: 0 1 auto; max-height: 45%; }
   .controlos-camara { right: 8px; bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: column; }
-  .controlos-camara button { width: 36px; height: 36px; }
+  .controlos-camara button { width: 32px; height: 32px; font-size: .95rem; }
   .dica-controlos { display: none; }
   .prompt-interagir { bottom: calc(45% + 18px); font-size: .92rem; }
   body.painel-fechado .prompt-interagir { bottom: 76px; }
