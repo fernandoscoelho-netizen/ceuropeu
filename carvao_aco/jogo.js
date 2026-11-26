@@ -446,6 +446,7 @@ function showGuia() {
   var armed = false;
   $('#gReset').onclick = function () { if (!armed) { armed = true; this.textContent = 'Carreguem outra vez para confirmar'; return; } restart(); };
 }
+function pedirSenha() { $('#senha').value = ''; $('#senhaMsg').textContent = ''; $('#mSenha').hidden = false; setTimeout(function () { $('#senha').focus(); }, 50); }
 function restart() { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); }
 
 /* ---------- Introdução ---------- */
@@ -488,11 +489,17 @@ function bind() {
   $('#btnPausa').onclick = function () { S.paused = true; save(); $('#mPausa').hidden = false; };
   $('#btnRetomar').onclick = function () { S.paused = false; last = Date.now(); save(); $('#mPausa').hidden = true; };
   $('#btnSom').onclick = function () { S.sound = soundPref = !S.sound; this.textContent = (S.sound ? '🔊' : '🔇') + ' Som'; this.setAttribute('aria-pressed', S.sound); save(); };
-  $('#btnGuia').onclick = showGuia;
+  $('#btnGuia').onclick = pedirSenha;
+  $('#fSenha').onsubmit = function (e) {
+    e.preventDefault();
+    if ($('#senha').value.trim().toUpperCase() === 'PROFESSOR') { $('#mSenha').hidden = true; showGuia(); }
+    else { $('#senhaMsg').textContent = 'Senha errada.'; shake($('#fSenha')); $('#senha').select(); }
+  };
+  $('#senhaCancelar').onclick = function () { $('#mSenha').hidden = true; };
   $('#btnCaderno').onclick = function () { $('#inventario').classList.toggle('aberto'); };
   $('#gFechar').onclick = function () { $('#mGuia').hidden = true; };
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { if (!$('#mGuia').hidden) $('#mGuia').hidden = true; else if (current) closeStation(); }
+    if (e.key === 'Escape') { if (!$('#mSenha').hidden) $('#mSenha').hidden = true; else if (!$('#mGuia').hidden) $('#mGuia').hidden = true; else if (current) closeStation(); }
   });
 }
 function initScene() {

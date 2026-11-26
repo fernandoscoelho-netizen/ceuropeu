@@ -89,6 +89,17 @@
 <!-- Pausa -->
 <div class="modal" id="mPausa" hidden><div class="modal-card"><h2>Jogo em pausa</h2><p>O relógio parou.</p><button class="btn btn-gold" id="btnRetomar" type="button">Continuar</button></div></div>
 
+<!-- Senha do guia do professor -->
+<div class="modal" id="mSenha" hidden>
+  <form class="modal-card" id="fSenha">
+    <h2>Guia do professor</h2>
+    <p>Esta área tem as soluções. Escreva a senha do professor.</p>
+    <input class="field" id="senha" type="password" autocomplete="off" aria-label="Senha do professor">
+    <p class="p-msg bad" id="senhaMsg" aria-live="polite"></p>
+    <div class="row" style="justify-content:center"><button class="btn" type="button" id="senhaCancelar">Cancelar</button><button class="btn btn-gold" type="submit">Entrar</button></div>
+  </form>
+</div>
+
 <!-- Guia do professor -->
 <div class="modal" id="mGuia" hidden>
   <div class="modal-card wide">

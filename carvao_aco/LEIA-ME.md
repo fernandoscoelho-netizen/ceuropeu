@@ -17,7 +17,7 @@ Paris, Quai d'Orsay, Sala do Relógio (Salon de l'Horloge), a sala onde Robert S
 | 7 | Jornais de 10 de maio | Manchetes verdadeiras ou falsas | Palhetão da chave |
 | ★ | Cofre | Combinação 18 · 6 · 50 e a chave | Fim |
 
-No fim aparecem: certificado da equipa (para imprimir), a Declaração em seis ideias, o **texto integral** em português, o que aprenderam, perguntas para debate e as fontes. O botão «Guia do professor» tem as soluções e o botão para recomeçar entre turmas.
+No fim aparecem: certificado da equipa (para imprimir), a Declaração em seis ideias, o **texto integral** em português, o que aprenderam, perguntas para debate e as fontes. O botão «Guia do professor» (senha: PROFESSOR) tem as soluções e o botão para recomeçar entre turmas.
 
 ## Técnica
 
