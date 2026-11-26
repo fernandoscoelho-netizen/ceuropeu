@@ -1,0 +1,241 @@
+/* ============================================================
+   Missão Europa 3D — disposição em ecrã inteiro
+   O palco 3D ocupa todo o ecrã; a informação fica em painéis
+   translúcidos por cima (missão + mapa à esquerda, sala à direita,
+   ação contextual em baixo).
+   ============================================================ */
+body.jogo3d { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+
+/* ---------- Barra de topo ---------- */
+.jogo3d .barra-topo { position: relative; flex: none; }
+.barra-interior { display: flex; align-items: center; gap: .9rem; padding: .45rem .9rem; }
+.jogo3d .logos { display: flex; align-items: center; gap: .5rem; flex: none; }
+.titulo-bloco { flex: 1 1 auto; min-width: 0; }
+.jogo3d .titulo-jogo { font-size: 1.15rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jogo3d .titulo-jogo .sub { font-weight: 400; opacity: .8; font-size: .95rem; margin-left: .35rem; }
+.caminho { font-size: .82rem; color: var(--texto-suave); display: flex; gap: .35rem; align-items: center; white-space: nowrap; overflow: hidden; }
+.migalha { background: none; border: 0; padding: 0; color: #9fc0ff; text-decoration: underline; text-underline-offset: 2px; }
+.migalha:hover { color: #fff; }
+#migalhaSala { color: var(--ouro); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+
+.estrelas-topo { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0 3px; font-size: 1rem; line-height: 1.05; flex: none; }
+.estrelas-topo .e { color: #3b4f8f; transition: transform .4s, color .4s; }
+.estrelas-topo .e.on { color: var(--ouro); text-shadow: 0 0 6px rgba(255, 204, 0, .8); }
+.estrelas-topo .e.nova { animation: estrelaNova 1.2s ease-out; }
+@keyframes estrelaNova { 0% { transform: scale(3) rotate(-90deg); } 100% { transform: none; } }
+
+.acoes-topo { display: flex; gap: .35rem; flex: none; }
+.btn-topo {
+  display: inline-flex; align-items: center; gap: .35rem; background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .28); color: #fff; border-radius: 10px; padding: .38rem .65rem; font-size: .9rem; min-height: 40px;
+}
+.btn-topo:hover { background: rgba(255, 255, 255, .18); }
+.btn-topo.destaque { background: var(--ouro); color: #10204f; border-color: var(--ouro); font-weight: 600; }
+.btn-topo .contador { background: #10204f; color: #fff; border-radius: 999px; font-size: .75rem; padding: 0 .45rem; min-width: 1.4rem; text-align: center; }
+.btn-topo:focus-visible, .migalha:focus-visible, .ps-cabeca:focus-visible, .item-sala:focus-visible, .sala-mm:focus-visible,
+.controlos-camara button:focus-visible, .prompt-interagir:focus-visible { outline: 3px solid var(--ouro); outline-offset: 2px; }
+.menu-jogo { background: var(--azul-noite); border: 1px solid var(--azul-linha); }
+.menu-jogo .dropdown-item { color: var(--texto); }
+.menu-jogo .dropdown-item:hover, .menu-jogo .dropdown-item:focus { background: #1f3a88; color: #fff; }
+.menu-jogo .dropdown-divider { border-color: var(--azul-linha); }
+
+/* ---------- Palco ---------- */
+.palco { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 0 !important; display: flex; }
+.area-mundo { position: relative; flex: 1 1 auto; min-width: 0; overflow: hidden; }
+.coluna-lateral { flex: 0 0 340px; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow: hidden;
+  background: linear-gradient(180deg, #0b1d55, #071236); border-left: 2px solid rgba(255, 204, 0, .5); }
+.jogo3d .mundo { position: absolute; inset: 0; aspect-ratio: auto; background: radial-gradient(circle at 50% 40%, #13286a, #050c26); cursor: default; }
+.jogo3d .mundo canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+.fade-sala { position: absolute; inset: 0; background: #050c26; opacity: 0; pointer-events: none; transition: opacity .45s ease-out; z-index: 4; }
+.fade-sala.ativo { opacity: 1; transition: none; }
+.aviso-sem-3d { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); max-width: 440px; text-align: center; background: rgba(0, 0, 0, .35); padding: 1rem 1.2rem; border-radius: 14px; }
+
+.etiqueta-hover {
+  position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none;
+  background: rgba(8, 18, 52, .92); color: #fff; border: 1px solid rgba(255, 204, 0, .7); border-radius: 8px;
+  padding: .2rem .55rem; font-size: .82rem; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+}
+
+/* painéis translúcidos */
+.cartao-missao, .painel-sala, .dica-controlos, .controlos-camara {
+  position: absolute; z-index: 6; background: rgba(8, 20, 60, .82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(120, 150, 230, .35); border-radius: 14px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+}
+
+/* ---------- Cartão da missão ---------- */
+.cartao-missao { position: relative; flex: none; padding: .7rem .85rem .8rem; }
+.cm-cabeca { display: flex; align-items: center; gap: .4rem; }
+.cm-cabeca h2 { font-size: 1.02rem; font-weight: 700; margin: 0; flex: 1; color: #fff; }
+.btn-recolher { background: none; border: 0; color: var(--texto-suave); font-size: 1rem; width: 30px; height: 30px; border-radius: 8px; transition: transform .2s; }
+.btn-recolher[aria-expanded="false"] { transform: rotate(-90deg); }
+.objetivo { font-size: .88rem; color: var(--texto); margin: .35rem 0 .55rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .6rem; }
+.chip { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; padding: .1rem .55rem; font-size: .8rem; white-space: nowrap; }
+.chip-nivel { color: var(--ouro); border-color: rgba(255, 204, 0, .45); }
+
+/* mini-mapa: 3 salas em cima, átrio ao centro, 3 salas em baixo */
+.mini-mapa { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.sala-mm {
+  position: relative; border-radius: 8px; border: 2px solid transparent; color: #fff; font-size: .72rem; line-height: 1.15;
+  padding: .3rem .3rem .25rem; text-align: left; min-height: 46px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.sala-mm .n { font-weight: 700; }
+.sala-mm .est { font-size: .72rem; letter-spacing: 1px; color: rgba(255, 255, 255, .35); }
+.sala-mm .est .on { color: var(--ouro); }
+.sala-mm.atrio { grid-column: 1 / -1; min-height: 32px; flex-direction: row; align-items: center; justify-content: center; gap: .4rem; }
+.sala-mm.atual { border-color: var(--ouro); box-shadow: 0 0 0 2px rgba(255, 204, 0, .3); }
+.sala-mm.atual::after { content: "Estás aqui"; position: absolute; right: 4px; top: 3px; font-size: .58rem; background: var(--ouro); color: #10204f; border-radius: 4px; padding: 0 .25rem; font-weight: 700; }
+.sala-mm.sugerida:not(.atual) { border-color: rgba(255, 255, 255, .55); border-style: dashed; }
+.sala-mm.feita .n::after { content: " ✔"; color: #8ff0b8; }
+.sala-mm:hover { filter: brightness(1.2); }
+
+/* ---------- Painel «Nesta sala» ---------- */
+.painel-sala { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.ps-cabeca {
+  display: flex; align-items: center; gap: .5rem; width: 100%; background: none; border: 0; color: var(--ouro);
+  padding: .65rem .85rem; text-transform: uppercase; letter-spacing: 1px; font-size: .8rem; font-weight: 700; text-align: left;
+}
+.ps-resumo { margin-left: auto; color: var(--texto-suave); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.ps-cabeca .seta { transition: transform .2s; color: var(--texto-suave); }
+.painel-sala.fechado .ps-cabeca .seta { transform: rotate(-90deg); }
+.painel-sala.fechado .lista-objetos { display: none; }
+.jogo3d .lista-objetos { max-height: none; overflow-y: auto; padding: 0 .6rem .6rem; }
+.grupo-sala { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--texto-suave); margin: .45rem .2rem .25rem; }
+.item-sala {
+  display: flex; align-items: center; gap: .55rem; width: 100%; text-align: left; background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1); border-radius: 10px; color: var(--texto); padding: .42rem .55rem; margin-bottom: .28rem; font-size: .88rem;
+}
+.item-sala:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 204, 0, .6); }
+.item-sala .ico { width: 1.6rem; height: 1.6rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none; font-size: .85rem; background: #23397e; }
+.item-sala .txt { flex: 1; min-width: 0; }
+.item-sala .est { display: block; font-size: .74rem; color: var(--texto-suave); }
+.item-sala.nova .ico { background: var(--ouro); }
+.item-sala.vista .ico, .item-sala.feito .ico { background: #2fbf71; }
+.item-sala.bloqueado { opacity: .75; }
+.item-sala.bloqueado .ico { background: #5a6380; }
+.item-sala.disponivel { border-color: rgba(255, 204, 0, .65); }
+.item-sala.disponivel .ico { background: var(--ouro); }
+.item-sala.perto { box-shadow: inset 3px 0 0 var(--ouro); }
+
+/* ---------- Ação contextual ---------- */
+.prompt-interagir {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 7;
+  display: inline-flex; align-items: center; gap: .55rem; background: var(--ouro); color: #10204f; border: 0;
+  border-radius: 999px; padding: .55rem 1.1rem .55rem .6rem; font-weight: 700; font-size: 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+  animation: surgir .25s ease-out; max-width: calc(100% - 24px);
+}
+.prompt-interagir .tecla { background: #10204f; color: #fff; border-radius: 8px; padding: .1rem .5rem; border: 0; font-size: .9rem; }
+.prompt-interagir .nome { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prompt-interagir .nome::before { content: "· "; }
+.prompt-interagir:hover { filter: brightness(1.08); }
+@keyframes surgir { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ---------- Câmara e dica ---------- */
+.controlos-camara { right: 14px; bottom: 14px; display: flex; gap: 2px; padding: 4px; }
+.controlos-camara button { width: 38px; height: 38px; border: 0; border-radius: 9px; background: transparent; color: #fff; font-size: 1.05rem; }
+.controlos-camara button:hover { background: rgba(255, 255, 255, .15); }
+.dica-controlos { left: 14px; bottom: 14px; padding: .4rem .5rem .4rem .8rem; font-size: .8rem; color: var(--texto-suave); display: flex; align-items: center; gap: .5rem; max-width: 46%; }
+.fechar-dica { background: none; border: 0; color: var(--texto-suave); width: 28px; height: 28px; border-radius: 6px; }
+.so-toque { display: none; }
+@media (pointer: coarse) { .so-rato { display: none; } .so-toque { display: inline; } }
+
+/* ---------- Avisos (toasts) ---------- */
+.toasts { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 8; display: flex; flex-direction: column; gap: .4rem; align-items: center; pointer-events: none; width: min(560px, calc(100% - 28px)); }
+.toast-jogo {
+  background: rgba(8, 20, 60, .94); border: 1px solid rgba(120, 150, 230, .5); color: #fff; border-radius: 12px; padding: .5rem .85rem;
+  font-size: .9rem; box-shadow: 0 8px 22px rgba(0, 0, 0, .4); animation: toastEntra .3s ease-out; text-align: center; pointer-events: auto;
+}
+.toast-jogo.aviso { border-color: #ff9f6b; }
+.toast-jogo.sucesso { border-color: var(--ouro); background: linear-gradient(90deg, rgba(60, 45, 0, .95), rgba(8, 20, 60, .95)); }
+.toast-jogo.sai { opacity: 0; transform: translateY(-6px); transition: all .35s; }
+@keyframes toastEntra { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Janela da pista: miniatura 3D ---------- */
+.pista-vista { height: 190px; margin: -.2rem 0 .8rem; border-radius: 12px; background: radial-gradient(circle at 50% 35%, #2a4594, #0a1a4a 75%); overflow: hidden; }
+.pista-vista:empty { display: none; }
+.pista-vista canvas { display: block; width: 100% !important; height: 100% !important; }
+
+/* ---------- Mapa da Casa (janela) ---------- */
+.mapa-casa { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.mapa-casa .sala-mm { min-height: 112px; padding: .6rem .7rem; font-size: .9rem; border-radius: 12px; }
+.mapa-casa .sala-mm .n { font-size: 1rem; }
+.mapa-casa .sala-mm .desc { font-size: .78rem; opacity: .85; margin: .2rem 0; }
+.mapa-casa .sala-mm .est { font-size: 1rem; }
+.mapa-casa .sala-mm .pis { font-size: .75rem; opacity: .8; }
+.mapa-casa .sala-mm.atrio { min-height: 64px; }
+.mapa-casa .sala-mm.atual::after { font-size: .7rem; right: 8px; top: 8px; }
+@media (max-width: 575.98px) { .mapa-casa { grid-template-columns: 1fr 1fr; } .mapa-casa .sala-mm.atrio { grid-column: 1 / -1; } }
+
+/* ---------- Guia do professor ---------- */
+.guia h3 { color: var(--ouro); font-size: 1.05rem; margin-top: 1.2rem; }
+.guia h4 { font-size: .95rem; margin-top: .9rem; color: #fff; }
+.guia table { width: 100%; font-size: .86rem; margin-bottom: .8rem; border-collapse: collapse; }
+.guia th, .guia td { border: 1px solid var(--azul-linha); padding: .3rem .45rem; vertical-align: top; }
+.guia th { background: #16306f; color: var(--ouro); font-weight: 600; }
+.guia .certa { color: #8ff0b8; font-weight: 600; }
+.guia .errada { color: var(--texto-suave); }
+.guia .nota { background: rgba(255, 204, 0, .08); border-left: 4px solid var(--ouro); padding: .5rem .8rem; border-radius: 6px; }
+.guia .nav-pills .nav-link { color: var(--texto); }
+.guia .nav-pills .nav-link.active { background: var(--ouro); color: #10204f; font-weight: 600; }
+.guia img.bandeira { width: 34px; border: 1px solid rgba(255, 255, 255, .4); vertical-align: middle; margin-right: .3rem; }
+
+/* ---------- Ecrã inicial ---------- */
+.ecra-inicio { background:
+  radial-gradient(circle at 50% 30%, rgba(255, 204, 0, .14), transparent 45%),
+  radial-gradient(circle at 15% 90%, rgba(0, 51, 153, .8), transparent 55%), #061033; }
+.selo-3d { display: inline-block; background: var(--ouro); color: #10204f; font-weight: 700; border-radius: 999px; padding: .1rem .8rem; font-size: .8rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .4rem; }
+
+/* ---------- Sem WebGL: lista sempre aberta ---------- */
+.modo-sem-3d .controlos-camara, .modo-sem-3d .dica-controlos, .modo-sem-3d .prompt-interagir { display: none !important; }
+
+/* ---------- Ecrãs médios ---------- */
+@media (max-width: 1100px) {
+  .coluna-lateral { flex-basis: 290px; }
+  .jogo3d .titulo-jogo .sub { display: none; }
+}
+/* ---------- Telemóvel / tablet estreito: painéis por cima do 3D ---------- */
+@media (max-width: 860px) {
+  .barra-interior { gap: .5rem; padding: .35rem .5rem; }
+  .jogo3d .logo-clube { display: none; }
+  .jogo3d .logo-agr { height: 24px; }
+  .jogo3d .titulo-jogo { font-size: .95rem; }
+  .btn-topo .rot { display: none; }
+  .btn-topo { padding: .3rem .45rem; min-height: 38px; min-width: 38px; justify-content: center; }
+  .estrelas-topo { font-size: .72rem; }
+  .coluna-lateral { position: absolute; inset: 0; background: none; border: 0; padding: 8px; pointer-events: none; justify-content: space-between; z-index: 6; }
+  .coluna-lateral > * { pointer-events: auto; }
+  .cartao-missao { padding: .45rem .65rem; }
+  .cartao-missao .objetivo { font-size: .8rem; margin: .2rem 0 .35rem; }
+  .cartao-missao .mini-mapa { display: none; }
+  .cartao-missao .chips { margin-bottom: 0; }
+  .painel-sala { flex: 0 1 auto; max-height: 45%; }
+  .controlos-camara { right: 8px; bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: column; }
+  .controlos-camara button { width: 36px; height: 36px; }
+  .dica-controlos { display: none; }
+  .prompt-interagir { bottom: calc(45% + 18px); font-size: .92rem; }
+  body.painel-fechado .prompt-interagir { bottom: 76px; }
+  .toasts { top: auto; bottom: 52%; }
+}
+@media (max-width: 480px) {
+  .logos { display: none !important; }
+  .estrelas-topo { display: none; }
+  .caminho { font-size: .75rem; }
+}
+
+@media print {
+  body.jogo3d { height: auto; overflow: visible; display: block; }
+}
+
+/* ---------- Telemóvel na horizontal (pouca altura) ---------- */
+@media (max-height: 520px) and (max-width: 1000px) {
+  .barra-interior { padding: .2rem .5rem; }
+  .jogo3d .logos { display: none; }
+  .btn-topo { min-height: 34px; min-width: 34px; padding: .2rem .4rem; }
+  .cartao-missao { align-self: flex-start; max-width: 60%; padding: .3rem .6rem; }
+  .cm-cabeca h2 { font-size: .9rem; }
+  .painel-sala { max-height: 70%; align-self: flex-end; width: 46%; }
+  .toast-jogo { font-size: .8rem; padding: .3rem .6rem; }
+  .toasts { top: 8px; bottom: auto; left: auto; right: 60px; transform: none; width: 38%; }
+  .prompt-interagir { bottom: 12px; left: auto; right: 60px; transform: none; animation: none; }
+  body.painel-fechado .prompt-interagir { bottom: 12px; }
+}

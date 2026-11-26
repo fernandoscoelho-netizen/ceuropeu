@@ -53,61 +53,149 @@ window.App = (function () {
     switch (o.tipo) {
       case "pista": return e === "vista" ? "✔ investigado" : "🔍 por investigar";
       case "desafio": return e === "feito" ? "✅ estrela recuperada" : e === "bloqueado" ? "🔒 faltam pistas" : "⭐ disponível";
-      case "porta": return `${estrelasSala(o.destino)}/2 ⭐`;
-      case "saida": return "↩";
+      case "porta": return `${estrelasSala(o.destino)}/2 ⭐ · ${pistasSala(o.destino).vistas}/${pistasSala(o.destino).total} pistas`;
+      case "saida": return "voltar ao átrio";
       case "pedestal": return `${estrelas()}/12 ⭐`;
     }
     return "";
   }
-  function icone(o) {
-    return { pista: "🔍", desafio: "⭐", porta: "🚪", saida: "↩️", pedestal: "🏛️" }[o.tipo] || "•";
+  function icone(o, e) {
+    if (o.tipo === "pista") return e === "vista" ? "✔" : "🔍";
+    if (o.tipo === "desafio") return e === "feito" ? "★" : e === "bloqueado" ? "🔒" : "⭐";
+    if (o.tipo === "porta") return ICONE_SALA[o.destino] || "🚪";
+    return { saida: "↩", pedestal: "🏛️" }[o.tipo] || "•";
   }
 
   /* ---------- Mensagens ---------- */
-  function mensagem(txt) { $("mensagem").textContent = txt; }
+  function mensagem(txt, tipo) { $("mensagem").textContent = txt; toast(txt, tipo || "info"); }
+  function toast(txt, tipo) {
+    const cx = $("toasts"); if (!cx) return;
+    const el = document.createElement("div");
+    el.className = "toast-jogo " + (tipo || "info"); el.textContent = txt;
+    cx.appendChild(el);
+    while (cx.children.length > 3) cx.firstChild.remove();
+    setTimeout(() => { el.classList.add("sai"); setTimeout(() => el.remove(), 400); }, tipo === "aviso" ? 5200 : 4200);
+  }
 
   /* ---------- Painel ---------- */
+  let estrelasAntes = -1;
+  function salaSugerida() { return D.ORDEM_SALAS.find(s => estrelasSala(s) < 2); }
+  function pistasSala(sid) {
+    const ids = D.SALAS[sid].objetos.filter(o => o.tipo === "pista").map(o => o.id);
+    return { total: ids.length, vistas: ids.filter(i => estado.pistas[i]).length };
+  }
   function atualizarPainel() {
     const n = estrelas();
     const cont = $("estrelasPainel");
     cont.innerHTML = "";
     for (let i = 0; i < TOTAL_ESTRELAS; i++) {
-      const s = document.createElement("span"); s.className = "e" + (i < n ? " on" : ""); s.textContent = "★"; s.setAttribute("aria-hidden", "true");
+      const s = document.createElement("span");
+      s.className = "e" + (i < n ? " on" : "") + (estrelasAntes >= 0 && i >= estrelasAntes && i < n ? " nova" : "");
+      s.textContent = "★"; s.setAttribute("aria-hidden", "true");
       cont.appendChild(s);
     }
+    estrelasAntes = n;
     cont.setAttribute("aria-label", `${n} de 12 estrelas recuperadas`);
     $("pontos").textContent = pontos();
     $("contaPistas").textContent = `${nPistas()}/${TODAS_PISTAS.length}`;
     $("contaCaderno").textContent = nPistas();
-    $("nivelTexto").textContent = estado.nivel === 3 ? "3.º ciclo" : "2.º ciclo";
+    $("nivelTexto").textContent = estado.nivel === 3 ? "Embaixador · 3.º ciclo" : "Explorador · 2.º ciclo";
 
     const sala = D.SALAS[estado.sala];
     $("nomeSala").textContent = sala.nome;
-    $("progressoSala").textContent = estado.sala === "atrio" ? `${n}/12 estrelas` : `${estrelasSala(estado.sala)}/2 estrelas nesta sala`;
+    $("migalhaSala").textContent = sala.nome;
+    $("progressoSala").textContent = estado.sala === "atrio" ? `${n}/12` : `${estrelasSala(estado.sala)}/2`;
+    $("progressoSala").parentElement.title = estado.sala === "atrio" ? "Estrelas recuperadas" : "Estrelas desta sala";
 
     // objetivo
     let obj;
     if (estado.completo) obj = "Missão cumprida! Podes rever o caderno ou explorar livremente.";
-    else if (n >= TOTAL_ESTRELAS) obj = "Tens as 12 estrelas! Volta ao átrio e leva-as ao pedestal da bandeira.";
-    else if (estado.sala === "atrio") {
-      const proxima = D.ORDEM_SALAS.find(s => estrelasSala(s) < 2);
-      obj = `Recupera as 12 estrelas: há 2 em cada sala. Sugestão: entra na sala «${D.SALAS[proxima].curto}».`;
-    } else if (estrelasSala(estado.sala) === 2) obj = "Sala concluída! Volta ao átrio e escolhe outra porta.";
-    else obj = "Investiga os objetos 🔍 para recolher pistas e depois resolve as 2 estações ⭐ desta sala.";
+    else if (n >= TOTAL_ESTRELAS) obj = estado.sala === "atrio" ? "Tens as 12 estrelas! Leva-as ao pedestal da bandeira, no centro do átrio." : "Tens as 12 estrelas! Volta ao átrio e leva-as ao pedestal da bandeira.";
+    else if (estado.sala === "atrio") obj = `Há 2 estrelas em cada sala. Sugestão: entra na sala ${D.ORDEM_SALAS.indexOf(salaSugerida()) + 1}, «${D.SALAS[salaSugerida()].curto}».`;
+    else if (estrelasSala(estado.sala) === 2) obj = "Sala concluída! Escolhe outra sala no mapa ou volta ao átrio.";
+    else {
+      const ps = pistasSala(estado.sala);
+      obj = ps.vistas < ps.total ? `Investiga os objetos 🔍 (${ps.vistas}/${ps.total}) e resolve as 2 estações ⭐ desta sala.` : "Já tens as pistas todas: resolve as estações ⭐ desta sala.";
+    }
     $("textoObjetivo").textContent = obj;
 
-    // lista de objetos
+    // lista de objetos, agrupada
     const lista = $("listaObjetos");
     lista.innerHTML = "";
-    sala.objetos.forEach(o => {
-      const b = document.createElement("button");
-      b.type = "button"; b.className = "btn btn-sm";
-      const est = descricaoEstado(o);
-      b.innerHTML = `<span><span aria-hidden="true">${icone(o)}</span> ${esc(o.rotulo)}</span><span class="estado">${esc(est)}</span>`;
-      b.setAttribute("aria-label", `${o.rotulo} — ${est.replace(/[^\p{L}\p{N}/ ]/gu, "").trim()}`);
-      b.addEventListener("click", () => { if (window.Mundo) window.Mundo.posicionarJunto(o); interagir(o); });
-      lista.appendChild(b);
+    const grupos = [
+      ["Estações ⭐", sala.objetos.filter(o => o.tipo === "desafio" || o.tipo === "pedestal")],
+      ["Objetos para investigar", sala.objetos.filter(o => o.tipo === "pista")],
+      [estado.sala === "atrio" ? "Portas das salas" : "Saída", sala.objetos.filter(o => o.tipo === "porta" || o.tipo === "saida")]
+    ];
+    grupos.forEach(([titulo, objs]) => {
+      if (!objs.length) return;
+      const h = document.createElement("div"); h.className = "grupo-sala"; h.textContent = titulo; lista.appendChild(h);
+      objs.forEach(o => {
+        const b = document.createElement("button");
+        const e = estadoObjeto(o);
+        b.type = "button"; b.className = "item-sala " + e;
+        const est = descricaoEstado(o);
+        b.innerHTML = `<span class="ico" aria-hidden="true">${icone(o, e)}</span><span class="txt">${esc(o.rotulo)}<span class="est">${esc(est)}</span></span>`;
+        b.setAttribute("aria-label", `${o.rotulo} — ${est.replace(/[^\p{L}\p{N}/ ]/gu, "").trim()}`);
+        b.addEventListener("click", () => {
+          if (window.Mundo && window.Mundo.ativo && o.tipo !== "porta" && o.tipo !== "saida") window.Mundo.irPara(o);
+          else interagir(o);
+          if (matchMedia("(max-width: 860px)").matches) fecharPainelSala(true);
+    if (matchMedia("(max-height: 520px)").matches) $("btnRecolherMissao").click();
+        });
+        lista.appendChild(b);
+      });
     });
+    const ps = estado.sala === "atrio" ? null : pistasSala(estado.sala);
+    $("resumoSala").textContent = ps ? `🔍 ${ps.vistas}/${ps.total} · ⭐ ${estrelasSala(estado.sala)}/2` : `⭐ ${n}/12`;
+
+    renderMapa($("miniMapa"), false);
+    renderMapa($("mapaCasa"), true);
+    if (window.Mundo && window.Mundo.atualizar) window.Mundo.atualizar();
+  }
+
+  /* ---------- Mapa da Casa (mini-mapa e janela) ---------- */
+  const ICONE_SALA = { simbolos: "🎵", mapa: "🌍", historia: "📜", instituicoes: "🏛️", direitos: "⚖️", futuro: "🌱" };
+  function renderMapa(el, grande) {
+    if (!el) return;
+    el.innerHTML = "";
+    const sug = salaSugerida();
+    const celula = (sid, i) => {
+      const s = D.SALAS[sid], b = document.createElement("button");
+      b.type = "button";
+      const ne = sid === "atrio" ? estrelas() : estrelasSala(sid);
+      const feita = sid !== "atrio" && ne === 2;
+      b.className = "sala-mm" + (sid === "atrio" ? " atrio" : "") + (estado.sala === sid ? " atual" : "") + (sid === sug ? " sugerida" : "") + (feita ? " feita" : "");
+      b.style.background = `linear-gradient(160deg, ${s.chao2}, ${s.parede})`;
+      const est = sid === "atrio" ? `${ne}/12 ★` : `<span class="${ne > 0 ? "on" : ""}">★</span><span class="${ne > 1 ? "on" : ""}">★</span>`;
+      if (grande) {
+        const ps = sid === "atrio" ? null : pistasSala(sid);
+        b.innerHTML = `<span class="n">${sid === "atrio" ? "🏛️ " : (ICONE_SALA[sid] + " " + i + " · ")}${esc(s.curto === "Átrio" ? "Átrio (pedestal da bandeira)" : s.nome)}</span>
+          <span class="desc">${esc(s.descricao)}</span>
+          <span class="d-flex justify-content-between align-items-end"><span class="est">${est}</span>${ps ? `<span class="pis">🔍 ${ps.vistas}/${ps.total} pistas</span>` : ""}</span>`;
+      } else {
+        b.innerHTML = sid === "atrio" ? `<span class="n">🏛️ Átrio</span><span class="est">${est}</span>` : `<span class="n">${i} · ${esc(s.curto)}</span><span class="est">${est}</span>`;
+      }
+      b.title = estado.sala === sid ? `Estás aqui: ${s.nome}` : `Ir para: ${s.nome}`;
+      b.setAttribute("aria-label", `${s.nome}${estado.sala === sid ? " (estás aqui)" : ""}, ${sid === "atrio" ? ne + " de 12" : ne + " de 2"} estrelas`);
+      b.addEventListener("click", () => {
+        const m = bootstrap.Modal.getInstance($("modalMapa")); if (m) m.hide();
+        if (estado.sala !== sid) irParaSala(sid);
+      });
+      return b;
+    };
+    D.ORDEM_SALAS.slice(0, 3).forEach((sid, i) => el.appendChild(celula(sid, i + 1)));
+    el.appendChild(celula("atrio"));
+    D.ORDEM_SALAS.slice(3).forEach((sid, i) => el.appendChild(celula(sid, i + 4)));
+  }
+  function irParaSala(sid) {
+    if (sid === "atrio") entrarSala("atrio", estado.sala);
+    else entrarSala(sid);
+  }
+  function fecharPainelSala(fechar) {
+    const p = $("painelSala"); p.classList.toggle("fechado", fechar);
+    document.body.classList.toggle("painel-fechado", fechar);
+    $("btnPainelSala").setAttribute("aria-expanded", String(!fechar));
   }
 
   /* ---------- Navegação ---------- */
@@ -122,7 +210,7 @@ window.App = (function () {
     if (window.Mundo) window.Mundo.entrarSala(id, pos);
     window.Som.efeito("porta");
     atualizarPainel();
-    mensagem(`Entraste: ${sala.nome}. ${sala.descricao}`);
+    $("mensagem").textContent = `Entraste: ${sala.nome}. ${sala.descricao}`;
     guardar();
   }
 
@@ -153,8 +241,9 @@ window.App = (function () {
     $("pistaNota").textContent = nova
       ? (desbloq.length ? `Guardado no caderno ✓ · Desbloqueaste: «${D.DESAFIOS[desbloq[0]].titulo}» ⭐` : "Nova pista guardada no caderno ✓")
       : "Já tinhas esta pista no caderno.";
+    $("modalPista").dataset.pista = id;
     bootstrap.Modal.getOrCreateInstance($("modalPista")).show();
-    mensagem(nova ? `Nova pista: ${p.nome}.` : `Releste: ${p.nome}.`);
+    $("mensagem").textContent = nova ? `Nova pista: ${p.nome}.` : `Releste: ${p.nome}.`;
     atualizarPainel(); renderCaderno(); guardar();
     if (window.Mundo) window.Mundo.brilho(id);
   }
@@ -164,8 +253,7 @@ window.App = (function () {
     const falta = pistasEmFalta(id);
     if (falta.length) {
       window.Som.efeito("erro");
-      mensagem(`🔒 A estação «${def.titulo}» está trancada. Investiga primeiro: ${window.Desafios.nomesPistas(falta)}.`);
-      if (window.Mundo) window.Mundo.aviso(`Faltam pistas: ${falta.map(f => D.PISTAS[f].nome).join(", ")}`);
+      mensagem(`🔒 A estação «${def.titulo}» está trancada. Investiga primeiro: ${window.Desafios.nomesPistas(falta)}.`, "aviso");
       return;
     }
     const feito = estado.desafios[id] && estado.desafios[id].feito;
@@ -174,8 +262,9 @@ window.App = (function () {
       aoConcluir: (did, tentativas, pts) => {
         estado.desafios[did] = { feito: true, tentativas, pontos: pts };
         atualizarPainel(); renderCaderno(); guardar();
-        mensagem(`⭐ Estrela recuperada: ${def.titulo}! Tens ${estrelas()} de 12.`);
+        $("mensagem").textContent = `⭐ Estrela recuperada: ${def.titulo}! Tens ${estrelas()} de 12.`;
         if (window.Mundo) window.Mundo.celebrar();
+        toast(`⭐ Estrela recuperada! Tens ${estrelas()} de 12.`, "sucesso");
       },
       aoFechar: () => { const m = $("mundo"); if (m) m.focus({ preventScroll: true }); }
     });
@@ -189,7 +278,7 @@ window.App = (function () {
       mostrarFinal();
     } else {
       const faltam = D.ORDEM_SALAS.filter(s => estrelasSala(s) < 2).map(s => `${D.SALAS[s].curto} (${2 - estrelasSala(s)})`);
-      mensagem(`O pedestal tem ${n} de 12 estrelas. Ainda faltam estrelas em: ${faltam.join(", ")}.`);
+      mensagem(`O pedestal tem ${n} de 12 estrelas. Ainda faltam estrelas em: ${faltam.join(", ")}.`, "aviso");
     }
   }
 
@@ -249,9 +338,11 @@ window.App = (function () {
         <li>As ilustrações do jogo são esquemáticas e não são reconstruções exatas de edifícios, objetos ou documentos.</li>
       </ul>
       <p class="small">As ligações abrem páginas na Internet; o jogo em si funciona sem ligação.</p>
-      <hr>
-      <h3 class="h6" id="tBanco">Para professores: banco de perguntas</h3>
-      <p class="small mb-2">As perguntas de cada desafio estão no ficheiro <code>dados/banco-perguntas.json</code>. Sempre que um desafio é aberto, o jogo sorteia um novo conjunto de itens (por exemplo, 6 ou 10 das 27 bandeiras da UE). Podes editar esse ficheiro e carregá-lo aqui — fica guardado neste navegador.</p>
+`;
+  }
+  function htmlBanco() {
+    return `<h3 id="tBanco">Banco de perguntas</h3>
+      <p class="small mb-2">As perguntas de cada desafio estão no ficheiro <code>dados/banco-perguntas.json</code>. Sempre que um desafio é aberto, o jogo sorteia um novo conjunto de itens (por exemplo, 6 ou 10 das 27 bandeiras da UE). Podes editar esse ficheiro e carregá-lo aqui: fica guardado neste navegador.</p>
       <p class="small mb-2" id="estadoBanco" role="status" aria-live="polite"></p>
       <div class="d-flex flex-wrap gap-2 align-items-center">
         <label class="btn btn-sm btn-outline-light mb-0" for="ficheiroBanco">Carregar banco (.json)</label>
@@ -259,7 +350,6 @@ window.App = (function () {
         <button type="button" class="btn btn-sm btn-outline-light" id="btnDescarregarBanco">Descarregar banco atual</button>
         <button type="button" class="btn btn-sm btn-outline-light" id="btnReporBanco">Repor banco original</button>
       </div>`;
-    ligarBancoUI();
   }
 
   /* ---------- Banco de perguntas: carregar, importar, repor ---------- */
@@ -271,7 +361,7 @@ window.App = (function () {
     return `Em uso: ${orig} · ${total} perguntas, itens e variantes.`;
   }
   function ligarBancoUI() {
-    const est = $("estadoBanco"); if (est) est.textContent = resumoBanco();
+    const est = $("estadoBanco"); if (!est) return; est.textContent = resumoBanco();
     $("ficheiroBanco").addEventListener("change", (ev) => {
       const f = ev.target.files[0]; if (!f) return;
       const r = new FileReader();
@@ -385,7 +475,7 @@ window.App = (function () {
       setTimeout(() => { const t = document.getElementById("tabAprend"); if (t) bootstrap.Tab.getOrCreateInstance(t).show(); }, 50);
     });
     $("btnImprimir").addEventListener("click", () => window.print());
-    $("btnReiniciar").addEventListener("click", () => {
+    const reiniciar = () => {
       if (!window.confirm("Queres mesmo recomeçar? Perdes as estrelas e as pistas desta missão.")) return;
       apagar(); estado = novoEstado(estado.nivel);
       $("ecraFinal").classList.add("d-none");
@@ -394,7 +484,30 @@ window.App = (function () {
       renderCaderno(); atualizarPainel();
       if (window.Mundo) window.Mundo.entrarSala("atrio", D.SALAS.atrio.inicio);
       $("btnComecar").focus();
+    };
+    $("btnReiniciar").addEventListener("click", reiniciar);
+    $("btnReiniciarMenu").addEventListener("click", reiniciar);
+    $("btnGuia").addEventListener("click", () => window.Professor && window.Professor.pedirSenha());
+    $("migalhaCasa").addEventListener("click", () => bootstrap.Modal.getOrCreateInstance($("modalMapa")).show());
+    $("btnPainelSala").addEventListener("click", () => fecharPainelSala(!$("painelSala").classList.contains("fechado")));
+    $("btnRecolherMissao").addEventListener("click", (e) => {
+      const b = e.currentTarget, aberto = b.getAttribute("aria-expanded") === "true";
+      b.setAttribute("aria-expanded", String(!aberto)); $("corpoMissao").hidden = aberto;
     });
+    $("promptInteragir").addEventListener("click", () => window.Mundo && window.Mundo.interagirProximo());
+    const cam = { camEsq: () => window.Mundo.rodar(.35), camDir: () => window.Mundo.rodar(-.35), camMais: () => window.Mundo.zoom(-1.5), camMenos: () => window.Mundo.zoom(1.5), camCentro: () => window.Mundo.centrar() };
+    Object.keys(cam).forEach(k => $(k).addEventListener("click", () => window.Mundo && window.Mundo.ativo && cam[k]()));
+    try { if (localStorage.getItem("missaoEuropa_dica") === "x") $("dicaControlos").hidden = true; } catch (e) {}
+    $("fecharDica").addEventListener("click", () => { $("dicaControlos").hidden = true; try { localStorage.setItem("missaoEuropa_dica", "x"); } catch (e) {} });
+    // em ecrãs pequenos o painel da sala começa recolhido
+    if (matchMedia("(max-width: 860px)").matches) fecharPainelSala(true);
+    if (matchMedia("(max-height: 520px)").matches) $("btnRecolherMissao").click();
+    // miniatura 3D do objeto na janela da pista
+    $("modalPista").addEventListener("shown.bs.modal", () => {
+      const v = $("pistaVista"); v.innerHTML = "";
+      if (window.Mundo && window.Mundo.ativo) window.Mundo.inspecionar($("modalPista").dataset.pista, v);
+    });
+    $("modalPista").addEventListener("hidden.bs.modal", () => { if (window.Mundo && window.Mundo.ativo) window.Mundo.pararInspecao(); $("pistaVista").innerHTML = ""; });
 
     // atalhos de teclado globais
     document.addEventListener("keydown", (e) => {
@@ -404,6 +517,7 @@ window.App = (function () {
       const k = e.key.toLowerCase();
       if (k === "c") { e.preventDefault(); bootstrap.Offcanvas.getOrCreateInstance($("caderno")).show(); }
       else if (k === "h") { e.preventDefault(); bootstrap.Modal.getOrCreateInstance($("modalAjuda")).show(); }
+      else if (k === "m") { e.preventDefault(); bootstrap.Modal.getOrCreateInstance($("modalMapa")).show(); }
     });
     // ao fechar pista, devolve o foco ao mundo se a interação veio de lá
     $("modalPista").addEventListener("hidden.bs.modal", () => { if (document.activeElement === document.body) $("mundo").focus({ preventScroll: true }); });
@@ -415,7 +529,8 @@ window.App = (function () {
 
   return {
     get estado() { return estado; },
-    estadoObjeto, interagir, jogoAtivo, mensagem, estrelas, estrelasSala,
+    estadoObjeto, descricaoEstado, interagir, jogoAtivo, mensagem, toast, estrelas, estrelasSala, irParaSala,
+    htmlBanco, ligarBancoUI, resumoBanco,
     _mostrarFinal: mostrarFinal
   };
 })();

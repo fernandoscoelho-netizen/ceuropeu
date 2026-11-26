@@ -501,7 +501,7 @@ window.Desafios = (function () {
   }
 
   /* ============================================================
-     CONSTRUIR (bandeira europeia, com pré-visualização p5.js)
+     CONSTRUIR (bandeira europeia, com pré-visualização em canvas)
      ============================================================ */
   function montarConstruir(def) {
     const corpo = $("desafioCorpo");
@@ -544,50 +544,63 @@ window.Desafios = (function () {
     $("cbMenos").addEventListener("click", () => { $("cbN").value = Math.max(1, st.n - 1); ler(); });
     $("cbMais").addEventListener("click", () => { $("cbN").value = Math.min(30, st.n + 1); ler(); });
 
-    // Pré-visualização com p5.js (modo instância)
+    // Pré-visualização em canvas 2D (animação suave das estrelas)
     if (previaP5) { previaP5.remove(); previaP5 = null; }
     const cont = $("previaBandeira");
-    previaP5 = new p5(function (s) {
-      function estrela(x, y, r1, r2) {
-        s.beginShape();
-        for (let k = 0; k < 10; k++) {
-          const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? r2 : r1;
-          s.vertex(x + Math.cos(a) * r, y + Math.sin(a) * r);
-        }
-        s.endShape(s.CLOSE);
+    const cv = document.createElement("canvas");
+    cont.appendChild(cv);
+    const cx = cv.getContext("2d");
+    let ativo = true, frame = 0;
+    previaP5 = { remove() { ativo = false; cv.remove(); } };
+    function dimensionar() {
+      const w = Math.max(240, cont.clientWidth || 300), dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = w * dpr; cv.height = w * 2 / 3 * dpr; cv.style.width = w + "px"; cv.style.height = (w * 2 / 3) + "px";
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { W: w, H: w * 2 / 3 };
+    }
+    let dim = null;
+    function estrela(x, y, r1, r2) {
+      cx.beginPath();
+      for (let k = 0; k < 10; k++) {
+        const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? r2 : r1;
+        cx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
       }
-      s.setup = function () {
-        const w = Math.max(240, cont.clientWidth || 300);
-        s.createCanvas(w, w * 2 / 3);
-        s.pixelDensity(Math.min(2, window.devicePixelRatio || 1));
-      };
-      s.draw = function () {
-        const W = s.width, H = s.height;
-        s.background(CORES[st.fundo]);
-        if (st.fundo === "branco") { s.noFill(); s.stroke(180); s.rect(0, 0, W - 1, H - 1); }
-        s.noStroke(); s.fill(CORES[st.estrelas]);
-        if (st.estrelas === st.fundo || (st.estrelas === "branco" && st.fundo === "branco")) { s.stroke(150); s.strokeWeight(1); }
-        const R = H / 3, r1 = H / 18, r2 = r1 * 0.4;
-        const pulso = 1 + Math.sin(s.frameCount / 20) * 0.03;
-        if (st.disp === "circulo") {
-          for (let k = 0; k < st.n; k++) {
-            const a = -Math.PI / 2 + k * 2 * Math.PI / st.n;
-            estrela(W / 2 + Math.cos(a) * R, H / 2 + Math.sin(a) * R, r1 * pulso, r2 * pulso);
-          }
-        } else if (st.disp === "linhas") {
-          const cols = Math.ceil(Math.sqrt(st.n * 1.6)), lin = Math.ceil(st.n / cols);
-          for (let k = 0; k < st.n; k++) {
-            const c = k % cols, l = Math.floor(k / cols);
-            estrela(W * (c + 1) / (cols + 1), H * (l + 1) / (lin + 1), r1 * 0.8, r2 * 0.8);
-          }
-        } else {
-          for (let k = 0; k < st.n; k++) {
-            const x = (Math.sin(k * 12.9898) * 43758.5453) % 1, y = (Math.sin(k * 78.233) * 12543.123) % 1;
-            estrela(W * (0.1 + 0.8 * Math.abs(x)), H * (0.12 + 0.76 * Math.abs(y)), r1 * 0.8, r2 * 0.8);
-          }
+      cx.closePath(); cx.fill(); if (cx._contorno) cx.stroke();
+    }
+    function desenharPrevia() {
+      if (!ativo) return;
+      if (!dim || Math.abs(dim.W - Math.max(240, cont.clientWidth || 300)) > 2) dim = dimensionar();
+      const W = dim.W, H = dim.H; frame++;
+      cx.fillStyle = CORES[st.fundo]; cx.fillRect(0, 0, W, H);
+      // ondulação suave do tecido
+      const g = cx.createLinearGradient(0, 0, W, 0);
+      for (let i = 0; i <= 6; i++) g.addColorStop(i / 6, `rgba(${i % 2 ? "0,0,0,.10" : "255,255,255,.08"})`);
+      cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+      if (st.fundo === "branco") { cx.strokeStyle = "#b4b4b4"; cx.strokeRect(0.5, 0.5, W - 1, H - 1); }
+      cx.fillStyle = CORES[st.estrelas];
+      cx._contorno = st.estrelas === st.fundo; cx.strokeStyle = "#969696"; cx.lineWidth = 1;
+      const R = H / 3, r1 = H / 18, r2 = r1 * 0.4;
+      const pulso = 1 + Math.sin(frame / 20) * 0.03;
+      if (st.disp === "circulo") {
+        for (let k = 0; k < st.n; k++) {
+          const a = -Math.PI / 2 + k * 2 * Math.PI / st.n;
+          estrela(W / 2 + Math.cos(a) * R, H / 2 + Math.sin(a) * R, r1 * pulso, r2 * pulso);
         }
-      };
-    }, cont);
+      } else if (st.disp === "linhas") {
+        const cols = Math.ceil(Math.sqrt(st.n * 1.6)), lin = Math.ceil(st.n / cols);
+        for (let k = 0; k < st.n; k++) {
+          const c = k % cols, l = Math.floor(k / cols);
+          estrela(W * (c + 1) / (cols + 1), H * (l + 1) / (lin + 1), r1 * 0.8, r2 * 0.8);
+        }
+      } else {
+        for (let k = 0; k < st.n; k++) {
+          const x = (Math.sin(k * 12.9898) * 43758.5453) % 1, y = (Math.sin(k * 78.233) * 12543.123) % 1;
+          estrela(W * (0.1 + 0.8 * Math.abs(x)), H * (0.12 + 0.76 * Math.abs(y)), r1 * 0.8, r2 * 0.8);
+        }
+      }
+      requestAnimationFrame(desenharPrevia);
+    }
+    requestAnimationFrame(desenharPrevia);
 
     function verificar() {
       ler();

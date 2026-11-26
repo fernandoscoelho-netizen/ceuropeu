@@ -114,7 +114,8 @@ kbd { background: #23397e; color: #fff; border: 1px solid #3b57a8; padding: 1px 
 .btn-check:focus-visible + .btn-nivel { outline: 3px solid #fff; outline-offset: 2px; }
 .cartao-final { background: rgba(255, 255, 255, .07); border: 1px solid var(--azul-linha); border-radius: var(--raio); padding: 1rem; }
 .cartao-final h2 { color: var(--ouro); }
-.lista-aprendizagens li { margin-bottom: .35rem; }
+.lista-aprendizagens { list-style: none; padding-left: 0; }
+.lista-aprendizagens li { margin-bottom: .35rem; padding-left: 1.6em; text-indent: -1.6em; }
 .lista-aprendizagens .ok { color: var(--certo); font-weight: 700; }
 .lista-aprendizagens .falta { color: var(--texto-suave); }
 
