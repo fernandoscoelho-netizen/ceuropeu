@@ -1,0 +1,40 @@
+VISITA VIRTUAL AO PARLAMENTO EUROPEU · HEMICICLO DE ESTRASBURGO
+================================================================
+
+Como abrir
+- Abre o ficheiro index.html num navegador (Chrome, Edge, Firefox ou Safari).
+- Funciona sem instalar nada e também sem Internet (ficheiro único).
+- Endereços diretos para a aula: index.html#grupos, index.html#numero, index.html#estados
+
+O que se pode fazer
+1. Visita: percorrer o hemiciclo em 3D, com etiquetas nos locais importantes
+   (Presidência, tribuna, Conselho, Comissão, cabines de interpretação,
+   galeria do público, ecrãs, consola de voto) e uma visita guiada.
+2. Grupos políticos: cada lugar com a cor do grupo, pela ordem real no hemiciclo;
+   passar o rato (ou tocar) num lugar mostra o deputado; pesquisa por nome.
+3. Número de deputados: número atual de cada grupo, comparação com a sessão
+   constitutiva de 2024 e maioria absoluta (361).
+4. Estados-Membros: quantos deputados elege cada país, onde se sentam,
+   por grupo e por partido nacional.
+
+Fontes dos dados (todas oficiais)
+- Planta interativa do hemiciclo de Estrasburgo, Parlamento Europeu
+  (posição de cada lugar e respetivo ocupante), dados de 23/11/2026:
+  https://www.europarl.europa.eu/erpl-public/hemicycle/index.htm?lang=pt&loc=str
+- Lista oficial dos deputados (grupo, país e partido nacional), consultada a 26/11/2026:
+  https://www.europarl.europa.eu/meps/pt/full-list
+- Resultados oficiais das eleições europeias de 2024 (sessão constitutiva):
+  https://results.elections.europa.eu/pt/
+- Decisão (UE) 2023/2061 do Conselho Europeu (720 lugares por Estado-Membro):
+  https://eur-lex.europa.eu/eli/dec/2023/2061/oj
+As contagens por grupo e por país das duas primeiras fontes coincidem (720 deputados).
+
+Nota: a posição dos lugares segue a planta oficial. As medidas da sala, os materiais
+e a decoração são uma reconstituição aproximada, para fins educativos.
+
+Créditos e licenças
+- Modelos 3D e texturas: criados por código para esta visita (sem imagens externas).
+- Motor 3D: three.js, licença MIT (ver LICENCA-THREE.txt).
+- Dados © União Europeia, Parlamento Europeu (reutilização autorizada mediante
+  indicação da fonte).
+- Código-fonte na pasta codigo-fonte/ (npm install && npm run build gera o index.html).
