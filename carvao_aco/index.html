@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carvão e Aço: a Missão Schuman</title>
+<meta name="description" content="Carvão e Aço: a Missão Schuman. Escape room 3D sobre a Declaração Schuman de 9 de maio de 1950. Sete enigmas, um cofre e o texto integral da Declaração.">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<div id="sala" class="sala" aria-hidden="true"></div>
+<div id="semWebgl" class="sem-webgl" hidden></div>
+
+<header class="hud" id="hud">
+  <div class="hud-l">
+    <span class="logo" aria-hidden="true">✦</span>
+    <span class="hud-title">Carvão e Aço: <b>a Missão Schuman</b></span>
+  </div>
+  <div class="hud-c" id="hudStats" hidden>
+    <div class="relogio" title="Hora na sala: a exposição abre às 18h00">
+      <span class="r-hora" id="hHora">17:20</span>
+      <span class="r-falta" id="hFalta">faltam 40:00</span>
+    </div>
+    <div class="pill" id="hPistas" title="Pistas por usar">☎ <b>5</b></div>
+    <div class="pill" id="hEnigmas" title="Enigmas resolvidos">✓ <b>0/7</b></div>
+  </div>
+  <div class="hud-r">
+    <button class="btn btn-sm" id="btnCaderno" type="button" aria-controls="inventario" hidden>Caderno</button>
+    <button class="btn btn-sm" id="btnPausa" type="button" hidden>Pausa</button>
+    <button class="btn btn-sm" id="btnSom" type="button" aria-pressed="true">🔊 Som</button>
+    <button class="btn btn-sm" id="btnGuia" type="button">Guia do professor</button>
+  </div>
+</header>
+
+<!-- Inventário: as peças que a equipa já encontrou -->
+<aside class="inventario" id="inventario" hidden aria-label="Peças encontradas">
+  <h2>Caderno da equipa</h2>
+  <ul id="invLista"></ul>
+</aside>
+
+<!-- Barra das estações -->
+<nav class="estacoes" id="estacoes" hidden aria-label="Peças da exposição"></nav>
+<div class="dica-rato" id="dicaRato" hidden></div>
+<div class="tooltip" id="tooltip" hidden></div>
+
+<!-- Ecrã inicial -->
+<section class="intro" id="intro">
+  <div class="intro-card">
+    <p class="eyebrow">Quai d'Orsay · Paris · Sala do Relógio</p>
+    <h1>Carvão e Aço<em>a Missão Schuman</em></h1>
+    <div class="story paper" id="story"></div>
+    <p class="ficcao">A história do jogo é inventada. As citações, as datas e os documentos são reais e vêm de fontes oficiais (lista no fim do jogo).</p>
+    <div class="como">
+      <h2>Como se joga</h2>
+      <ul>
+        <li>Arrastem o ecrã para olhar à volta. Toquem nas peças numeradas, ou usem a barra de baixo.</li>
+        <li>Há <b>7 enigmas</b>, que se resolvem por qualquer ordem. Dividam a equipa!</li>
+        <li>Os enigmas 1 a 4 dão a combinação do cofre. Os enigmas 5 a 7 dão as três partes da chave.</li>
+        <li>Têm <b>5 pistas</b> (o telefone da secretária). Cada pista custa 2 minutos.</li>
+      </ul>
+    </div>
+    <form class="start" id="startForm">
+      <label for="equipa">Nome da equipa</label>
+      <input class="field" id="equipa" maxlength="28" autocomplete="off" placeholder="Ex.: Os Seis do 9.º B" required>
+      <div class="row">
+        <button class="btn btn-gold" type="submit" id="btnComecar">Entrar na sala</button>
+        <button class="btn" type="button" id="btnContinuar" hidden>Continuar</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Painel de cada enigma -->
+<section class="painel" id="painel" role="dialog" aria-modal="false" aria-labelledby="pTitulo" hidden>
+  <div class="p-head">
+    <div>
+      <p class="eyebrow" id="pEyebrow">Enigma</p>
+      <h2 id="pTitulo">—</h2>
+    </div>
+    <button class="btn btn-sm btn-close" id="pFechar" type="button" aria-label="Fechar e voltar à sala">✕</button>
+  </div>
+  <div class="p-body" id="pBody"></div>
+  <div class="p-foot">
+    <button class="btn btn-sm" id="pPista" type="button">☎ Ligar ao arquivo (pista, −2 min)</button>
+    <div class="p-msg" id="pMsg" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- Pausa -->
+<div class="modal" id="mPausa" hidden><div class="modal-card"><h2>Jogo em pausa</h2><p>O relógio parou.</p><button class="btn btn-gold" id="btnRetomar" type="button">Continuar</button></div></div>
+
+<!-- Guia do professor -->
+<div class="modal" id="mGuia" hidden>
+  <div class="modal-card wide">
+    <div class="p-head"><h2>Guia do professor</h2><button class="btn btn-sm btn-close" id="gFechar" type="button" aria-label="Fechar">✕</button></div>
+    <div class="guia" id="guiaBody"></div>
+  </div>
+</div>
+
+<!-- Final -->
+<section class="final" id="final" hidden>
+  <div class="final-card" id="finalBody"></div>
+</section>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="vendor/three.min.js"></script>
+<script src="mapa-europa.js"></script>
+<script src="sala3d.js"></script>
+<script src="conteudos.js"></script>
+<script src="jogo.js"></script>
+</body>
+</html>
