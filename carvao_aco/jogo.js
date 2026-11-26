@@ -502,11 +502,14 @@ function bind() {
     if (e.key === 'Escape') { if (!$('#mSenha').hidden) $('#mSenha').hidden = true; else if (!$('#mGuia').hidden) $('#mGuia').hidden = true; else if (current) closeStation(); }
   });
 }
+function hideLoader() { var l = $('#loader'); $('#loaderBarra').style.width = '100%'; $('#loaderPasso').textContent = 'Pronto!'; setTimeout(function () { l.classList.add('fora'); setTimeout(function () { l.hidden = true; }, 700); }, 250); }
 function initScene() {
   var tip = $('#tooltip');
   try {
     has3D = !!(window.THREE && Sala.init($('#sala'), {
       reducedMotion: RM,
+      onProgress: function (p, label) { $('#loaderBarra').style.width = Math.max(3, Math.round(p * 100)) + '%'; $('#loaderPasso').textContent = label + '… ' + Math.round(p * 100) + '%'; },
+      onReady: hideLoader,
       low: (navigator.hardwareConcurrency || 4) <= 2,
       onPick: function (id) { if (!S.started) return; if (id === 'cofre' && S.finished) { showFinal(); return; } openStation(id); },
       onHover: function (id, e) {
@@ -516,7 +519,7 @@ function initScene() {
       }
     }));
   } catch (err) { console.error(err); has3D = false; }
-  if (!has3D) { $('#semWebgl').hidden = false; $('#semWebgl').innerHTML = '<p>Este dispositivo não mostra a sala em 3D. O jogo funciona na mesma: usem a barra de baixo para abrir cada peça da exposição.</p>'; }
+  if (!has3D) { hideLoader(); $('#semWebgl').hidden = false; $('#semWebgl').innerHTML = '<p>Este dispositivo não mostra a sala em 3D. O jogo funciona na mesma: usem a barra de baixo para abrir cada peça da exposição.</p>'; }
 }
 
 /* ---------- Arranque ---------- */

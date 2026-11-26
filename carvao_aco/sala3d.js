@@ -1181,34 +1181,58 @@ Sala.init = function (el, opts) {
   pmrem = new T.PMREMGenerator(renderer);
   root = new T.Group(); scene.add(root);
   clock = new T.Clock();
-  makeMaterials();
-  buildEnvironment();
-  buildRoom(); buildFireplace(); buildChairs(); buildDesk(); buildEasel(); buildVitrine(); buildSafe(); buildDoorAndArt();
-  buildChandelier(-3.6, 0.2); buildChandelier(3.6, 0.2);
-  buildTelegram(); buildPortraits(); buildNewspapers();
-  // luzes: sol da tarde a entrar pelas janelas, céu, e luz quente dos lustres
-  scene.add(new T.HemisphereLight(0xfff0dc, 0x4a3020, 0.55));
-  sunLight = new T.DirectionalLight(0xffd6a0, 5.2);
-  sunLight.position.set(-17, 9.5, -4); sunLight.target.position.set(0, 0, 0.8); scene.add(sunLight.target);
-  sunLight.castShadow = true; sunLight.shadow.mapSize.set(opts.low ? 1024 : 2048, opts.low ? 1024 : 2048);
-  var sc = sunLight.shadow.camera; sc.left = -10; sc.right = 10; sc.top = 8; sc.bottom = -8; sc.near = 1; sc.far = 40; sunLight.shadow.bias = -0.0004; sunLight.shadow.normalBias = 0.02; sunLight.shadow.radius = 4;
-  scene.add(sunLight);
-  var fill = new T.DirectionalLight(0xbcd0ff, 0.35); fill.position.set(6, 5, 8); scene.add(fill);
-  // reflexos verdadeiros: fotografamos a sala em cubo uma vez e usamo-la no espelho e nos metais
-  try {
-    var cubeRT = new T.WebGLCubeRenderTarget(opts.low ? 256 : 512, { type: T.HalfFloatType });
-    var cubeCam = new T.CubeCamera(0.1, 40, cubeRT); cubeCam.position.set(0, 2.2, -1.5); scene.add(cubeCam);
-    for (var k in markers) markers[k].visible = false;
-    renderer.shadowMap.needsUpdate = true; cubeCam.update(renderer, scene);
-    for (var k2 in markers) markers[k2].visible = true;
-    M.mirror.envMap = cubeRT.texture; M.mirror.envMapIntensity = 1; M.mirror.needsUpdate = true;
-    var envRT = pmrem.fromCubemap(cubeRT.texture); scene.environment = envRT.texture;
-  } catch (e) {}
-  bindInput(renderer.domElement);
-  window.addEventListener('resize', resize);
-  if (window.ResizeObserver) new ResizeObserver(resize).observe(el);
-  resize(); applyLook();
-  running = true; animate();
+  // A sala é construída aos poucos, para o browser não «congelar» e para mostrar o progresso
+  var steps = [
+    ['Materiais e texturas', makeMaterials], ['Reflexos', buildEnvironment], ['Paredes e parquet', buildRoom],
+    ['Lareira e relógio', buildFireplace], ['Cadeiras e tapete', buildChairs], ['Secretária e máquina de escrever', buildDesk],
+    ['Mapa de 1950', buildEasel], ['Vitrina do Tratado', buildVitrine], ['Cofre', buildSafe], ['Porta e quadros', buildDoorAndArt],
+    ['Lustres', function () { buildChandelier(-3.6, 0.2); buildChandelier(3.6, 0.2); }],
+    ['Telegrama, retratos e jornais', function () { buildTelegram(); buildPortraits(); buildNewspapers(); }],
+    ['Luz do sol', function () {
+      scene.add(new T.HemisphereLight(0xfff0dc, 0x4a3020, 0.55));
+      sunLight = new T.DirectionalLight(0xffd6a0, 5.2);
+      sunLight.position.set(-17, 9.5, -4); sunLight.target.position.set(0, 0, 0.8); scene.add(sunLight.target);
+      sunLight.castShadow = true; sunLight.shadow.mapSize.set(opts.low ? 1024 : 2048, opts.low ? 1024 : 2048);
+      var sc = sunLight.shadow.camera; sc.left = -10; sc.right = 10; sc.top = 8; sc.bottom = -8; sc.near = 1; sc.far = 40; sunLight.shadow.bias = -0.0004; sunLight.shadow.normalBias = 0.02; sunLight.shadow.radius = 4;
+      scene.add(sunLight);
+      var fill = new T.DirectionalLight(0xbcd0ff, 0.35); fill.position.set(6, 5, 8); scene.add(fill);
+      resize(); applyLook();
+    }],
+    ['A preparar os materiais na placa gráfica', function () { try { renderer.compile(scene, camera); } catch (e) {} }],
+    ['Espelho e reflexos dourados', function () {
+      // reflexos verdadeiros: fotografamos a sala em cubo uma vez e usamo-la no espelho e nos metais
+      try {
+        var cubeRT = new T.WebGLCubeRenderTarget(opts.low ? 256 : 512, { type: T.HalfFloatType });
+        var cubeCam = new T.CubeCamera(0.1, 40, cubeRT); cubeCam.position.set(0, 2.2, -1.5); scene.add(cubeCam);
+        for (var k in markers) markers[k].visible = false;
+        renderer.shadowMap.needsUpdate = true; cubeCam.update(renderer, scene);
+        for (var k2 in markers) markers[k2].visible = true;
+        M.mirror.envMap = cubeRT.texture; M.mirror.envMapIntensity = 1; M.mirror.needsUpdate = true;
+        var envRT = pmrem.fromCubemap(cubeRT.texture); scene.environment = envRT.texture;
+      } catch (e) {}
+    }],
+    ['Último retoque', function () { renderer.shadowMap.needsUpdate = true; renderer.render(scene, camera); }]
+  ];
+  var i = 0;
+  function next() {
+    if (i >= steps.length) {
+      bindInput(renderer.domElement);
+      window.addEventListener('resize', resize);
+      if (window.ResizeObserver) new ResizeObserver(resize).observe(el);
+      resize(); applyLook();
+      running = true; animate();
+      if (opts.onReady) opts.onReady();
+      return;
+    }
+    var st = steps[i];
+    if (opts.onProgress) opts.onProgress(i / steps.length, st[0]);
+    // deixa o browser desenhar a barra de progresso antes de cada passo pesado
+    requestAnimationFrame(function () { setTimeout(function () {
+      try { st[1](); } catch (e) { console.error(e); }
+      i++; next();
+    }, 0); });
+  }
+  next();
   return true;
 };
 Sala.lookAtStation = function (id) { // vira a vista para a estação sem a abrir

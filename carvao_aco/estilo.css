@@ -12,6 +12,21 @@ button{font:inherit}
 .sem-webgl{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#3a2a1a,#0f0a06 70%)}
 .sem-webgl p{position:absolute;top:80px;left:50%;transform:translateX(-50%);max-width:520px;text-align:center;color:var(--muted)}
 
+/* Ecrã de carregamento */
+.loader{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 35%,#2a1e12,#0b0806 75%);transition:opacity .6s}
+.loader.fora{opacity:0;pointer-events:none}
+.loader-card{width:min(440px,100%);text-align:center}
+.loader-card h2{font-family:var(--serif);font-weight:normal;font-size:1.6rem;margin:14px 0 6px}
+.loader-card p{color:var(--muted);margin:0 0 14px}
+.loader-relogio{width:74px;height:74px;margin:6px auto 0;border-radius:50%;border:3px solid var(--gold);position:relative;background:#f5eedc}
+.loader-relogio::before,.loader-relogio span{content:"";position:absolute;left:50%;bottom:50%;width:3px;margin-left:-1.5px;background:#1b2440;border-radius:2px;transform-origin:50% 100%}
+.loader-relogio::before{height:20px;animation:roda 12s linear infinite}
+.loader-relogio span{height:29px;width:2px;margin-left:-1px;animation:roda 1.2s linear infinite}
+@keyframes roda{to{transform:rotate(360deg)}}
+.loader-barra{height:10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);overflow:hidden}
+.loader-barra i{display:block;height:100%;width:3%;background:linear-gradient(90deg,#cf9f3c,#f4d68a);transition:width .3s}
+.loader-passo{font-size:.85rem;margin-top:10px!important}
+
 /* HUD */
 .hud{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(10,14,32,.92),rgba(10,14,32,.65));border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
 .hud-l{display:flex;align-items:center;gap:10px;min-width:0}
