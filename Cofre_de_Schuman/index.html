@@ -596,6 +596,17 @@ main{max-width:1180px;margin:0 auto}
   </div>
 </div>
 
+<!-- SENHA DO GUIA -->
+<div class="overlay" id="pwOv" hidden role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+  <form class="ov-card" id="pwForm" style="max-width:420px">
+    <h2 id="pwTitle">Guia do professor</h2>
+    <p>Esta área tem as soluções. Escreva a senha do professor.</p>
+    <input class="field" id="pwInput" type="password" autocomplete="off" aria-label="Senha do professor">
+    <p id="pwMsg" aria-live="polite" style="color:#ff9b8a;min-height:1.2em;margin:.5rem 0"></p>
+    <div class="d-row" style="justify-content:flex-end;gap:8px"><button class="btn btn-sm" type="button" id="pwCancel">Cancelar</button><button class="btn btn-sm" type="submit">Entrar</button></div>
+  </form>
+</div>
+
 <!-- GUIA -->
 <div class="overlay" id="guideOv" hidden role="dialog" aria-modal="true" aria-labelledby="gTitle">
   <div class="ov-card">
@@ -1396,7 +1407,9 @@ $('#hintYes').addEventListener('click',function(){
 $('#btnPause').addEventListener('click',function(){S.paused=true;$('#pauseOv').hidden=false;$('#btnResume').focus()});
 $('#btnResume').addEventListener('click',function(){S.paused=false;lastTick=performance.now();$('#pauseOv').hidden=true});
 $('#btnSound').addEventListener('click',function(){S.sound=!S.sound;this.setAttribute('aria-pressed',String(S.sound));this.textContent='Som: '+(S.sound?'ligado':'desligado');if(S.sound){ac();sfx.click()}save()});
-$('#btnGuide').addEventListener('click',function(){$('#guideOv').hidden=false;$('#resetConfirm').hidden=true;$('#guideClose').focus()});
+$('#btnGuide').addEventListener('click',function(){$('#pwInput').value='';$('#pwMsg').textContent='';$('#pwOv').hidden=false;setTimeout(function(){$('#pwInput').focus()},50)});
+$('#pwCancel').addEventListener('click',function(){$('#pwOv').hidden=true});
+$('#pwForm').addEventListener('submit',function(e){e.preventDefault();if($('#pwInput').value.trim().toUpperCase()==='PROFESSOR'){$('#pwOv').hidden=true;$('#guideOv').hidden=false;$('#resetConfirm').hidden=true;$('#guideClose').focus()}else{$('#pwMsg').textContent='Senha errada.';$('#pwInput').select()}});
 $('#guideClose').addEventListener('click',function(){$('#guideOv').hidden=true});
 $('#solToggle').addEventListener('click',function(){var b=$('#solBox');b.hidden=!b.hidden;this.setAttribute('aria-expanded',String(!b.hidden));this.textContent=b.hidden?'Mostrar soluções':'Esconder soluções'});
 $('#resetAsk').addEventListener('click',function(){$('#resetConfirm').hidden=false});
@@ -1411,6 +1424,7 @@ function restart(){
 }
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
+  if(!$('#pwOv').hidden){$('#pwOv').hidden=true;return}
   if(!$('#guideOv').hidden){$('#guideOv').hidden=true;return}
   if(!$('#dossier').hidden)closeDossier();
 });
