@@ -433,13 +433,13 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       return passo();
     }).catch(function(){return "";});
   }
-  function criarCartao(pasta,ficheiro,i){
+  function criarCartao(pasta,ficheiro,i,titulo,descricao){
     var url=caminho(ficheiro),cor=CORES[i%CORES.length];
     var a=document.createElement("article");a.className="cartao novo";a.dataset.pasta=pasta;
     a.innerHTML='<div class="faixa" style="--c1:'+cor[0]+';--c2:'+cor[1]+'">'+
       '<img class="previa" src="assets/previews/'+encodeURIComponent(pasta)+'.jpg" alt="" loading="lazy">'+ESTRELA+
-      '<span class="tema">Novo</span></div><div class="corpo"><h3>'+esc(bonito(pasta))+'</h3>'+
-      '<p>Novo projeto do Clube Europeu.</p><a class="botao" href="'+url+'">Abrir jogo '+SETA+'</a></div>';
+      '<span class="tema">Novo</span></div><div class="corpo"><h3>'+esc(titulo||bonito(pasta))+'</h3>'+
+      '<p>'+esc(descricao||'Novo projeto do Clube Europeu.')+'</p><a class="botao" href="'+url+'">Abrir jogo '+SETA+'</a></div>';
     var img=a.querySelector(".previa");
     img.onerror=function(){ /* tenta uma imagem dentro da própria pasta */
       if(!img.dataset.t){img.dataset.t=1;img.src=caminho(pasta)+"/preview.jpg";}else img.remove();};
@@ -447,28 +447,45 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       var t=(h.match(/<title[^>]*>([^<]{2,120})<\/title>/i)||[])[1],
           d=(h.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']{5,300})/i)||[])[1];
       var tmp=document.createElement("textarea");
-      if(t&&!/chatgpt/i.test(t)){tmp.innerHTML=t;a.querySelector("h3").textContent=tmp.value.trim();}
-      if(d){tmp.innerHTML=d;a.querySelector(".corpo p").textContent=tmp.value.trim();}
+      if(!titulo&&t&&!/chatgpt/i.test(t)){tmp.innerHTML=t;a.querySelector("h3").textContent=tmp.value.trim();}
+      if(!descricao&&d){tmp.innerHTML=d;a.querySelector(".corpo p").textContent=tmp.value.trim();}
     });
     return a;
   }
   function contar(){var n=grelha.querySelectorAll(".cartao:not([hidden])").length;contagem.textContent=n+(n===1?" jogo":" jogos");}
 
   var ocupado=false;
+  /* 1.º o projetos.json (gerado pela GitHub Action a cada publicação, lido do próprio site,
+     sem gastar consultas à API); 2.º, se faltar, a API do GitHub. */
+  function doManifesto(){
+    return fetch("projetos.json?t="+Date.now(),{cache:"no-store"}).then(function(r){
+      if(!r.ok)throw new Error("sem manifesto");return r.json();
+    }).then(function(m){
+      if(!m||!Array.isArray(m.pastas))throw new Error("manifesto inválido");
+      return m.pastas.filter(function(p){return !IGNORAR[p.pasta]&&!/^[._]/.test(p.pasta);})
+        .map(function(p){return {pasta:p.pasta,principal:p.principal||null,titulo:p.titulo,descricao:p.descricao};});
+    });
+  }
+  function daAPI(){
+    return listar("").then(function(itens){
+      return itens.filter(function(i){return i.type==="dir"&&!IGNORAR[i.name]&&!/^[._]/.test(i.name);}).map(function(i){return {pasta:i.name};});
+    });
+  }
   function atualizar(manual){
     if(ocupado)return;ocupado=true;botao.classList.add("a-procurar");botao.disabled=true;
     if(manual)estado.textContent="A procurar projetos no repositório…";
-    listar("").then(function(itens){
-      var pastas=itens.filter(function(i){return i.type==="dir"&&!IGNORAR[i.name]&&!/^[._]/.test(i.name);}).map(function(i){return i.name;});
-      var existe={};pastas.forEach(function(p){existe[p]=1;});
+    doManifesto().catch(daAPI).then(function(lista){
+      var existe={};lista.forEach(function(p){existe[p.pasta]=1;});
       /* esconde cartões de pastas que já não existem */
       grelha.querySelectorAll(".cartao[data-pasta]").forEach(function(c){c.hidden=!existe[c.dataset.pasta];});
       var temos={};grelha.querySelectorAll(".cartao[data-pasta]").forEach(function(c){temos[c.dataset.pasta]=1;});
-      var novas=pastas.filter(function(p){return !temos[p];});
-      return Promise.all(novas.map(function(p){return htmlPrincipal(p).then(function(f){return f?{p:p,f:f}:null;}).catch(function(){return null;});}))
+      var novas=lista.filter(function(p){return !temos[p.pasta];});
+      return Promise.all(novas.map(function(p){
+          var f=p.principal?Promise.resolve(p.principal):htmlPrincipal(p.pasta);
+          return f.then(function(x){return x?{p:p.pasta,f:x,t:p.titulo,d:p.descricao}:null;}).catch(function(){return null;});}))
         .then(function(r){
           r=r.filter(Boolean);
-          r.forEach(function(x,i){grelha.appendChild(criarCartao(x.p,x.f,i));});
+          r.forEach(function(x,i){grelha.appendChild(criarCartao(x.p,x.f,i,x.t,x.d));});
           contar();
           estado.textContent=r.length?(r.length===1?"Encontrei 1 projeto novo.":"Encontrei "+r.length+" projetos novos."):(manual?"Está tudo atualizado.":"");
         });

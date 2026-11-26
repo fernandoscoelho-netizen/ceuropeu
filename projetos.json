@@ -1,0 +1,336 @@
+{
+  "gerado": "2026-11-26T21:24:29+00:00",
+  "pastas": [
+    {
+      "pasta": "Clube_Europeu_UE",
+      "ficheiros": [
+        {
+          "nome": "Guia-Clube-Europeu.pdf",
+          "caminho": "Clube_Europeu_UE/Guia-Clube-Europeu.pdf",
+          "tamanho": 4789831
+        },
+        {
+          "nome": "LEIA-ME.md",
+          "caminho": "Clube_Europeu_UE/LEIA-ME.md",
+          "tamanho": 2155
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Clube_Europeu_UE/index.html",
+          "tamanho": 431844
+        }
+      ],
+      "principal": "Clube_Europeu_UE/index.html",
+      "paginas": [
+        "Clube_Europeu_UE/index.html",
+        "Clube_Europeu_UE/codigo-fonte/app.html"
+      ]
+    },
+    {
+      "pasta": "Cofre_de_Schuman",
+      "ficheiros": [
+        {
+          "nome": "Cofre_de_Schuman_Guia_do_Professor.pdf",
+          "caminho": "Cofre_de_Schuman/Cofre_de_Schuman_Guia_do_Professor.pdf",
+          "tamanho": 161015
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Cofre_de_Schuman/index.html",
+          "tamanho": 119056
+        }
+      ],
+      "principal": "Cofre_de_Schuman/index.html",
+      "paginas": [
+        "Cofre_de_Schuman/index.html"
+      ]
+    },
+    {
+      "pasta": "Conhecer_a_UE",
+      "ficheiros": [
+        {
+          "nome": "app.js",
+          "caminho": "Conhecer_a_UE/app.js",
+          "tamanho": 34633
+        },
+        {
+          "nome": "data.js",
+          "caminho": "Conhecer_a_UE/data.js",
+          "tamanho": 20966
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Conhecer_a_UE/index.html",
+          "tamanho": 10615
+        },
+        {
+          "nome": "legibilidade.css",
+          "caminho": "Conhecer_a_UE/legibilidade.css",
+          "tamanho": 6439
+        },
+        {
+          "nome": "map-data.js",
+          "caminho": "Conhecer_a_UE/map-data.js",
+          "tamanho": 150693
+        },
+        {
+          "nome": "style.css",
+          "caminho": "Conhecer_a_UE/style.css",
+          "tamanho": 30555
+        }
+      ],
+      "principal": "Conhecer_a_UE/index.html",
+      "paginas": [
+        "Conhecer_a_UE/index.html"
+      ]
+    },
+    {
+      "pasta": "Estrelas da Europa",
+      "ficheiros": [
+        {
+          "nome": "Estrelas da Europa 5.zip",
+          "caminho": "Estrelas da Europa/Estrelas da Europa 5.zip",
+          "tamanho": 344187
+        },
+        {
+          "nome": "Estrelas-da-Europa-Guia-do-Professor.pdf",
+          "caminho": "Estrelas da Europa/Estrelas-da-Europa-Guia-do-Professor.pdf",
+          "tamanho": 6313687
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Estrelas da Europa/index.html",
+          "tamanho": 192408
+        },
+        {
+          "nome": "questions.js",
+          "caminho": "Estrelas da Europa/questions.js",
+          "tamanho": 151561
+        }
+      ],
+      "principal": "Estrelas da Europa/index.html",
+      "paginas": [
+        "Estrelas da Europa/index.html"
+      ]
+    },
+    {
+      "pasta": "Europa_em_Missao",
+      "ficheiros": [
+        {
+          "nome": "BASE-DE-DESAFIOS.html",
+          "caminho": "Europa_em_Missao/BASE-DE-DESAFIOS.html",
+          "tamanho": 6815
+        },
+        {
+          "nome": "FONTES-E-RIGOR.md",
+          "caminho": "Europa_em_Missao/FONTES-E-RIGOR.md",
+          "tamanho": 6514
+        },
+        {
+          "nome": "LE-ME.html",
+          "caminho": "Europa_em_Missao/LE-ME.html",
+          "tamanho": 6712
+        },
+        {
+          "nome": "Manual-Professor-exemplos-v1.pdf",
+          "caminho": "Europa_em_Missao/Manual-Professor-exemplos-v1.pdf",
+          "tamanho": 311632
+        },
+        {
+          "nome": "VERIFICACAO.md",
+          "caminho": "Europa_em_Missao/VERIFICACAO.md",
+          "tamanho": 5309
+        },
+        {
+          "nome": "bank-engine.js",
+          "caminho": "Europa_em_Missao/bank-engine.js",
+          "tamanho": 6360
+        },
+        {
+          "nome": "conclusao.png",
+          "caminho": "Europa_em_Missao/conclusao.png",
+          "tamanho": 79811
+        },
+        {
+          "nome": "data.js",
+          "caminho": "Europa_em_Missao/data.js",
+          "tamanho": 194
+        },
+        {
+          "nome": "desafio-aleatorio.png",
+          "caminho": "Europa_em_Missao/desafio-aleatorio.png",
+          "tamanho": 58786
+        },
+        {
+          "nome": "game.js",
+          "caminho": "Europa_em_Missao/game.js",
+          "tamanho": 20511
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Europa_em_Missao/index.html",
+          "tamanho": 4594
+        },
+        {
+          "nome": "map.js",
+          "caminho": "Europa_em_Missao/map.js",
+          "tamanho": 6391
+        },
+        {
+          "nome": "pre-visualizacao.png",
+          "caminho": "Europa_em_Missao/pre-visualizacao.png",
+          "tamanho": 90515
+        },
+        {
+          "nome": "style.css",
+          "caminho": "Europa_em_Missao/style.css",
+          "tamanho": 7032
+        }
+      ],
+      "principal": "Europa_em_Missao/index.html",
+      "paginas": [
+        "Europa_em_Missao/BASE-DE-DESAFIOS.html",
+        "Europa_em_Missao/LE-ME.html",
+        "Europa_em_Missao/index.html"
+      ]
+    },
+    {
+      "pasta": "Missao_Europa",
+      "ficheiros": [
+        {
+          "nome": "LEIA-ME.txt",
+          "caminho": "Missao_Europa/LEIA-ME.txt",
+          "tamanho": 4420
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Missao_Europa/index.html",
+          "tamanho": 24905
+        },
+        {
+          "nome": "missao-europa-ficheiro-unico.html",
+          "caminho": "Missao_Europa/missao-europa-ficheiro-unico.html",
+          "tamanho": 2436601
+        }
+      ],
+      "principal": "Missao_Europa/index.html",
+      "paginas": [
+        "Missao_Europa/index.html",
+        "Missao_Europa/missao-europa-ficheiro-unico.html"
+      ]
+    },
+    {
+      "pasta": "Parlamento_Europeu_3D",
+      "ficheiros": [
+        {
+          "nome": "LEIA-ME.txt",
+          "caminho": "Parlamento_Europeu_3D/LEIA-ME.txt",
+          "tamanho": 3077
+        },
+        {
+          "nome": "LICENCA-THREE.txt",
+          "caminho": "Parlamento_Europeu_3D/LICENCA-THREE.txt",
+          "tamanho": 1081
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Parlamento_Europeu_3D/index.html",
+          "tamanho": 662145
+        }
+      ],
+      "principal": "Parlamento_Europeu_3D/index.html",
+      "paginas": [
+        "Parlamento_Europeu_3D/index.html",
+        "Parlamento_Europeu_3D/codigo-fonte/src/template.html"
+      ]
+    },
+    {
+      "pasta": "Viagem_UE_3D",
+      "ficheiros": [
+        {
+          "nome": "ANALISE_PROJETO_ORIGINAL.md",
+          "caminho": "Viagem_UE_3D/ANALISE_PROJETO_ORIGINAL.md",
+          "tamanho": 7643
+        },
+        {
+          "nome": "CREDITOS.json",
+          "caminho": "Viagem_UE_3D/CREDITOS.json",
+          "tamanho": 4107
+        },
+        {
+          "nome": "Guia_do_Professor_Expresso_das_Estrelas.pdf",
+          "caminho": "Viagem_UE_3D/Guia_do_Professor_Expresso_das_Estrelas.pdf",
+          "tamanho": 992819
+        },
+        {
+          "nome": "LEIA-ME.txt",
+          "caminho": "Viagem_UE_3D/LEIA-ME.txt",
+          "tamanho": 1971
+        },
+        {
+          "nome": "LICENCA-THREE.txt",
+          "caminho": "Viagem_UE_3D/LICENCA-THREE.txt",
+          "tamanho": 1081
+        },
+        {
+          "nome": "PROMPT_TECNICO_VIAGEM_UE_3D.md",
+          "caminho": "Viagem_UE_3D/PROMPT_TECNICO_VIAGEM_UE_3D.md",
+          "tamanho": 31318
+        },
+        {
+          "nome": "index.html",
+          "caminho": "Viagem_UE_3D/index.html",
+          "tamanho": 587
+        }
+      ],
+      "principal": "Viagem_UE_3D/index.html",
+      "paginas": [
+        "Viagem_UE_3D/index.html"
+      ]
+    },
+    {
+      "pasta": "carvao_aco",
+      "ficheiros": [
+        {
+          "nome": "LEIA-ME.md",
+          "caminho": "carvao_aco/LEIA-ME.md",
+          "tamanho": 4544
+        },
+        {
+          "nome": "conteudos.js",
+          "caminho": "carvao_aco/conteudos.js",
+          "tamanho": 22246
+        },
+        {
+          "nome": "estilo.css",
+          "caminho": "carvao_aco/estilo.css",
+          "tamanho": 21072
+        },
+        {
+          "nome": "index.html",
+          "caminho": "carvao_aco/index.html",
+          "tamanho": 6000
+        },
+        {
+          "nome": "jogo.js",
+          "caminho": "carvao_aco/jogo.js",
+          "tamanho": 45628
+        },
+        {
+          "nome": "mapa-europa.js",
+          "caminho": "carvao_aco/mapa-europa.js",
+          "tamanho": 117663
+        },
+        {
+          "nome": "sala3d.js",
+          "caminho": "carvao_aco/sala3d.js",
+          "tamanho": 88963
+        }
+      ],
+      "principal": "carvao_aco/index.html",
+      "paginas": [
+        "carvao_aco/index.html"
+      ]
+    }
+  ]
+}
