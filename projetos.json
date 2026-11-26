@@ -1,5 +1,5 @@
 {
-  "gerado": "2026-11-26T21:24:29+00:00",
+  "gerado": "2026-11-26T21:40:03+00:00",
   "pastas": [
     {
       "pasta": "Clube_Europeu_UE",
@@ -205,12 +205,12 @@
         {
           "nome": "index.html",
           "caminho": "Missao_Europa/index.html",
-          "tamanho": 24905
+          "tamanho": 25594
         },
         {
           "nome": "missao-europa-ficheiro-unico.html",
           "caminho": "Missao_Europa/missao-europa-ficheiro-unico.html",
-          "tamanho": 2436601
+          "tamanho": 2439693
         }
       ],
       "principal": "Missao_Europa/index.html",
