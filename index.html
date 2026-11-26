@@ -46,12 +46,28 @@ h2{font-size:1.45rem; margin:0}
   border:1px solid var(--linha); border-radius:18px; overflow:hidden; display:flex; flex-direction:column;
   box-shadow:0 1px 2px rgba(13,22,51,.05),0 10px 28px rgba(13,22,51,.08); transition:transform .2s ease, box-shadow .2s ease}
 .cartao:hover{transform:translateY(-4px); box-shadow:0 4px 8px rgba(13,22,51,.08),0 22px 44px rgba(13,22,51,.16)}
-.faixa{height:104px; position:relative; display:grid; place-items:center; color:#fff; overflow:hidden;
+.faixa{aspect-ratio:16/9; position:relative; display:grid; place-items:center; color:#fff; overflow:hidden;
   background:linear-gradient(135deg,var(--c1),var(--c2))}
 .faixa::before{content:""; position:absolute; inset:0; opacity:.22;
   background-image:radial-gradient(circle at 1px 1px,#fff 1.2px,transparent 1.4px); background-size:16px 16px;
   -webkit-mask-image:linear-gradient(120deg,transparent 20%,#000 90%); mask-image:linear-gradient(120deg,transparent 20%,#000 90%)}
 .faixa svg{width:48px; height:48px; position:relative; transition:transform .3s ease}
+.previa{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top center; z-index:1; transition:transform .5s ease}
+.cartao:hover .previa{transform:scale(1.05)}
+.faixa .tema{z-index:2}
+.faixa:has(.previa)::after{content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35))}
+.cartao.novo .tema{background:var(--ouro); color:var(--azul)}
+.acoes{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.atualizar{display:inline-flex; align-items:center; gap:8px; font:inherit; font-weight:700; font-size:.9rem; cursor:pointer;
+  background:var(--cartao); color:var(--azul-2); border:1.5px solid var(--linha); padding:8px 14px; border-radius:10px;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); transition:border-color .15s, background .15s}
+.atualizar:hover{border-color:var(--azul-3)}
+.atualizar:focus-visible{outline:3px solid var(--ouro); outline-offset:2px}
+.atualizar svg{width:16px; height:16px}
+.atualizar.a-procurar svg{animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+#estado{font-size:.85rem; color:var(--suave); margin:-10px 0 14px; min-height:1.2em; text-align:right; text-shadow:0 0 6px var(--papel)}
+@media (prefers-color-scheme:dark){.atualizar{color:#cdd8ff}}
 .cartao:hover .faixa svg{transform:scale(1.12) rotate(-4deg)}
 .faixa .tema{position:absolute; left:14px; bottom:10px; font-size:.7rem; font-weight:700; letter-spacing:.1em;
   text-transform:uppercase; background:rgba(0,0,0,.25); padding:3px 9px; border-radius:999px}
@@ -108,13 +124,21 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
 <main>
   <div class="intro">
     <h2>Escolhe a tua missão</h2>
-    <p>8 jogos · funcionam no navegador, sem instalar nada</p>
+    <div class="acoes">
+      <p><span id="contagem">8 jogos</span> · funcionam no navegador, sem instalar nada</p>
+      <button type="button" class="atualizar" id="atualizar" title="Procurar pastas novas no repositório">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        Atualizar projetos
+      </button>
+    </div>
   </div>
+  <p id="estado" role="status" aria-live="polite"></p>
 
 <div class="grelha">
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Clube_Europeu_UE">
       <div class="faixa" style="--c1:#0b2a7a;--c2:#1d4fc4">
+        <img class="previa" src="assets/previews/Clube_Europeu_UE.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M8 17h8"/></svg>
         <span class="tema">Viagem</span>
       </div>
@@ -125,8 +149,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Conhecer_a_UE">
       <div class="faixa" style="--c1:#123a9e;--c2:#3a6fd8">
+        <img class="previa" src="assets/previews/Conhecer_a_UE.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg>
         <span class="tema">Exploração</span>
       </div>
@@ -137,8 +162,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Cofre_de_Schuman">
       <div class="faixa" style="--c1:#5a3e00;--c2:#c99400">
+        <img class="previa" src="assets/previews/Cofre_de_Schuman.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M12 8v1M12 15v1M8 12h1M15 12h1"/></svg>
         <span class="tema">Escape room</span>
       </div>
@@ -149,8 +175,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Estrelas da Europa">
       <div class="faixa" style="--c1:#0b2a7a;--c2:#e0a800">
+        <img class="previa" src="assets/previews/Estrelas%20da%20Europa.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>
         <span class="tema">Tabuleiro 3D</span>
       </div>
@@ -161,8 +188,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Europa_em_Missao">
       <div class="faixa" style="--c1:#0d5c63;--c2:#1d4fc4">
+        <img class="previa" src="assets/previews/Europa_em_Missao.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
         <span class="tema">Missão</span>
       </div>
@@ -173,8 +201,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Missao_Europa">
       <div class="faixa" style="--c1:#3b1f8f;--c2:#1d4fc4">
+        <img class="previa" src="assets/previews/Missao_Europa.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L21 21"/></svg>
         <span class="tema">Investigação</span>
       </div>
@@ -185,8 +214,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Viagem_UE_3D">
       <div class="faixa" style="--c1:#0b2a7a;--c2:#7a1f3d">
+        <img class="previa" src="assets/previews/Viagem_UE_3D.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/><circle cx="9" cy="14" r=".6"/><circle cx="15" cy="14" r=".6"/></svg>
         <span class="tema">Viagem 3D</span>
       </div>
@@ -197,8 +227,9 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
       </div>
     </article>
 
-    <article class="cartao">
+    <article class="cartao" data-pasta="Pao_por_Deus">
       <div class="faixa" style="--c1:#0e4f9e;--c2:#5aa0e6">
+        <img class="previa" src="assets/previews/Pao_por_Deus.jpg" alt="" loading="lazy" onerror="this.remove()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/><path d="M7 5v4M5 7h4M17 15v4M15 17h4"/></svg>
         <span class="tema">Tradição</span>
       </div>
@@ -346,6 +377,100 @@ footer{max-width:1180px; margin:0 auto; padding:32px 24px 40px; color:var(--suav
   if(escuro.addEventListener)escuro.addEventListener("change",function(){C=cor();desenharMapa();});
   ajustar();
   if(calmo)quadro(0);else requestAnimationFrame(quadro);
+})();
+</script>
+<script>
+/* ---- Botão «Atualizar projetos»: lê as pastas do repositório e acrescenta cartões ---- */
+(function(){
+  "use strict";
+  var REPO="fernandoscoelho-netizen/ceuropeu", RAMO="main";
+  var IGNORAR={"assets":1};
+  var API="https://api.github.com/repos/"+REPO+"/contents/";
+  var grelha=document.querySelector(".grelha"),botao=document.getElementById("atualizar"),
+      estado=document.getElementById("estado"),contagem=document.getElementById("contagem");
+  var CORES=[["#0b2a7a","#1d4fc4"],["#123a9e","#3a6fd8"],["#3b1f8f","#1d4fc4"],["#0d5c63","#1d4fc4"],["#5a3e00","#c99400"],["#0b2a7a","#7a1f3d"]];
+  var SETA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var ESTRELA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>';
+
+  function caminho(p){return p.split("/").map(encodeURIComponent).join("/");}
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function bonito(n){return n.replace(/[_-]+/g," ").replace(/\s+/g," ").trim();}
+  function listar(p){
+    return fetch(API+caminho(p)+"?ref="+RAMO,{headers:{"Accept":"application/vnd.github+json"}}).then(function(r){
+      if(r.status===403||r.status===429)throw new Error("limite");
+      if(!r.ok)throw new Error("erro "+r.status);return r.json();});
+  }
+  function htmlPrincipal(pasta){
+    return listar(pasta).then(function(itens){
+      var html=itens.filter(function(i){return i.type==="file"&&/\.html?$/i.test(i.name);});
+      var idx=html.find(function(i){return /^index\.html?$/i.test(i.name);});
+      if(idx)return idx.path;
+      var bons=html.filter(function(i){return !/^(le-?me|leia-?me|readme|notas|base-de)/i.test(i.name);});
+      if(bons.length)return bons[0].path;
+      if(html.length)return html[0].path;
+      var sub=itens.filter(function(i){return i.type==="dir";}).slice(0,3);
+      return sub.reduce(function(prom,d){return prom.then(function(achou){
+        if(achou)return achou;
+        return listar(d.path).then(function(x){var h=x.find(function(i){return i.type==="file"&&/\.html?$/i.test(i.name);});return h?h.path:null;});
+      });},Promise.resolve(null));
+    });
+  }
+  /* lê só o início do HTML (mesmo site) para tirar o título e a descrição */
+  function lerCabecalho(url){
+    return fetch(url).then(function(r){
+      if(!r.ok||!r.body)return "";
+      var leitor=r.body.getReader(),dec=new TextDecoder("utf-8"),txt="";
+      function passo(){return leitor.read().then(function(p){
+        if(p.done)return txt;txt+=dec.decode(p.value,{stream:true});
+        if(txt.length>24000||/<\/head>/i.test(txt)){leitor.cancel();return txt;}return passo();});}
+      return passo();
+    }).catch(function(){return "";});
+  }
+  function criarCartao(pasta,ficheiro,i){
+    var url=caminho(ficheiro),cor=CORES[i%CORES.length];
+    var a=document.createElement("article");a.className="cartao novo";a.dataset.pasta=pasta;
+    a.innerHTML='<div class="faixa" style="--c1:'+cor[0]+';--c2:'+cor[1]+'">'+
+      '<img class="previa" src="assets/previews/'+encodeURIComponent(pasta)+'.jpg" alt="" loading="lazy">'+ESTRELA+
+      '<span class="tema">Novo</span></div><div class="corpo"><h3>'+esc(bonito(pasta))+'</h3>'+
+      '<p>Novo projeto do Clube Europeu.</p><a class="botao" href="'+url+'">Abrir jogo '+SETA+'</a></div>';
+    var img=a.querySelector(".previa");
+    img.onerror=function(){ /* tenta uma imagem dentro da própria pasta */
+      if(!img.dataset.t){img.dataset.t=1;img.src=caminho(pasta)+"/preview.jpg";}else img.remove();};
+    lerCabecalho(url).then(function(h){
+      var t=(h.match(/<title[^>]*>([^<]{2,120})<\/title>/i)||[])[1],
+          d=(h.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']{5,300})/i)||[])[1];
+      var tmp=document.createElement("textarea");
+      if(t&&!/chatgpt/i.test(t)){tmp.innerHTML=t;a.querySelector("h3").textContent=tmp.value.trim();}
+      if(d){tmp.innerHTML=d;a.querySelector(".corpo p").textContent=tmp.value.trim();}
+    });
+    return a;
+  }
+  function contar(){var n=grelha.querySelectorAll(".cartao:not([hidden])").length;contagem.textContent=n+(n===1?" jogo":" jogos");}
+
+  var ocupado=false;
+  function atualizar(manual){
+    if(ocupado)return;ocupado=true;botao.classList.add("a-procurar");botao.disabled=true;
+    if(manual)estado.textContent="A procurar projetos no repositório…";
+    listar("").then(function(itens){
+      var pastas=itens.filter(function(i){return i.type==="dir"&&!IGNORAR[i.name]&&!/^[._]/.test(i.name);}).map(function(i){return i.name;});
+      var existe={};pastas.forEach(function(p){existe[p]=1;});
+      /* esconde cartões de pastas que já não existem */
+      grelha.querySelectorAll(".cartao[data-pasta]").forEach(function(c){c.hidden=!existe[c.dataset.pasta];});
+      var temos={};grelha.querySelectorAll(".cartao[data-pasta]").forEach(function(c){temos[c.dataset.pasta]=1;});
+      var novas=pastas.filter(function(p){return !temos[p];});
+      return Promise.all(novas.map(function(p){return htmlPrincipal(p).then(function(f){return f?{p:p,f:f}:null;}).catch(function(){return null;});}))
+        .then(function(r){
+          r=r.filter(Boolean);
+          r.forEach(function(x,i){grelha.appendChild(criarCartao(x.p,x.f,i));});
+          contar();
+          estado.textContent=r.length?(r.length===1?"Encontrei 1 projeto novo.":"Encontrei "+r.length+" projetos novos."):(manual?"Está tudo atualizado.":"");
+        });
+    }).catch(function(e){
+      if(manual)estado.textContent=e.message==="limite"?"O GitHub limita as consultas por hora. Tente daqui a alguns minutos.":"Não foi possível ligar ao GitHub. Verifique a ligação à internet.";
+    }).then(function(){ocupado=false;botao.classList.remove("a-procurar");botao.disabled=false;});
+  }
+  botao.addEventListener("click",function(){atualizar(true);});
+  if(location.protocol.indexOf("http")===0)atualizar(false);
 })();
 </script>
 </body>
