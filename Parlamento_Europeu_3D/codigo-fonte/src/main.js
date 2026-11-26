@@ -74,17 +74,22 @@ const vazios = lugares.filter(l => !l.g).length;
 // ======================= RENDERIZAÇÃO =======================
 const contentor = document.getElementById('cena');
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// qualidade adaptada ao dispositivo (pode ser mudada no painel)
+const QUAL_GUARDADA = (() => { try { return localStorage.getItem('pe3d-qualidade'); } catch (e) { return null; } })();
+const DISP_FRACO = matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 8) <= 4;
+const ALTA = QUAL_GUARDADA ? QUAL_GUARDADA === 'alta' : !DISP_FRACO;
+renderer.setPixelRatio(ALTA ? Math.min(window.devicePixelRatio, 1.5) : 1);
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = ALTA;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 contentor.appendChild(renderer.domElement);
 const css = new CSS2DRenderer({ element: document.getElementById('etiquetas') });
 css.setSize(innerWidth, innerHeight);
 
+let sujo = true;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b1534);
 scene.fog = new THREE.Fog(0x0b1534, 90, 160);
@@ -93,16 +98,19 @@ scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.35;
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 400);
-camera.position.set(0, 15.5, 10.4);
+camera.position.set(0, 54, 4);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 1, -11);
-controls.enableDamping = true; controls.dampingFactor = 0.08;
-controls.maxDistance = 95; controls.minDistance = 1.5;
-controls.maxPolarAngle = Math.PI * 0.495;
+controls.target.set(0, 0, -8.5);
+controls.enableDamping = true; controls.dampingFactor = 0.12;
+controls.rotateSpeed = 0.5; controls.zoomSpeed = 0.8; controls.panSpeed = 0.7;
+controls.screenSpacePanning = false; // deslocar ao nível do chão
+controls.maxDistance = 80; controls.minDistance = 2.5;
+controls.minPolarAngle = 0.02; controls.maxPolarAngle = Math.PI * 0.47;
+controls.autoRotateSpeed = 0.6;
 
 const barra = document.querySelector('#carregar i');
 const progresso = v => { barra.style.width = Math.round(v * 100) + '%'; };
-const H = construirHemiciclo(scene, lugares, progresso);
+const H = construirHemiciclo(scene, lugares, progresso, ALTA);
 
 // ecrãs com a composição atual (dados oficiais)
 const texEcra = ecraComposicao(GRUPOS, ORDEM, TOTAL, D_PLANTA);
@@ -119,11 +127,14 @@ function pintar(fn) {
     H.I.estofo.setColorAt(i, r.cor);
     H.I.luz.setColorAt(i, r.luz ? new THREE.Color(1, 0.15, 0.15) : new THREE.Color(0.35, 0.08, 0.08));
     if (r.marca) {
-      m4.makeTranslation(l.pos.x, l.pos.y + 3.0, l.pos.z); H.marc.setMatrixAt(i, m4); H.marc.setColorAt(i, r.marca);
-      m4.makeScale(2, 2.7, 2).setPosition(l.pos.x, l.pos.y + 0.15, l.pos.z); H.hastes.setMatrixAt(i, m4);
+      const j = marcados.length; // só os lugares marcados são desenhados
+      m4.makeTranslation(l.pos.x, l.pos.y + 3.0, l.pos.z); H.marc.setMatrixAt(j, m4); H.marc.setColorAt(j, r.marca);
+      m4.makeScale(2, 2.7, 2).setPosition(l.pos.x, l.pos.y + 0.15, l.pos.z); H.hastes.setMatrixAt(j, m4);
       marcados.push(l);
-    } else { H.marc.setMatrixAt(i, zero); H.hastes.setMatrixAt(i, zero); }
+    }
   });
+  H.marc.count = H.hastes.count = marcados.length;
+  sujo = true;
   for (const a of [H.I.estofo.instanceColor, H.I.luz.instanceColor, H.marc.instanceMatrix, H.marc.instanceColor, H.hastes.instanceMatrix]) a.needsUpdate = true;
   return marcados;
 }
@@ -208,7 +219,8 @@ function voar(pos, alvo, dur = 1600) {
 }
 const lugarPT = lugares.find(l => l.id === 97);
 const VISTAS = {
-  geral: ['Vista geral', new THREE.Vector3(0, 15.5, 10.4), new THREE.Vector3(0, 1, -11)],
+  geral: ['Vista geral', new THREE.Vector3(0, 54, 4), new THREE.Vector3(0, 0, -8.5)],
+  presidencia2: ['Vista de frente', new THREE.Vector3(0, 14, -24), new THREE.Vector3(0, 3.5, 5)],
   presidencia: ['Da Presidência', new THREE.Vector3(0, 3.3, H.zP + 1.2), new THREE.Vector3(0, 3, -18)],
   deputado: ['Lugar de um deputado', (() => { const p = lugarPT.pos.clone(); return p.add(new THREE.Vector3(0, 1.25, 0)).addScaledVector(new THREE.Vector3(Math.sin(lugarPT.rot), 0, Math.cos(lugarPT.rot)), -0.35); })(), new THREE.Vector3(0, 3, H.zP)],
   galeria: ['Galeria do público', new THREE.Vector3(4, Y_GALERIA + 2.6, -(R_PAREDE + 2.5)), new THREE.Vector3(0, 2, 4)],
@@ -235,6 +247,7 @@ function descLugar(l) {
 }
 renderer.domElement.addEventListener('pointermove', ev => {
   if (ev.pointerType === 'touch') return;
+  if (ev.buttons) { dica.style.display = 'none'; return; } // a rodar: não procurar lugares
   pendente = ev;
 });
 function processarRato() {
@@ -308,6 +321,7 @@ function htmlVisita() {
   <div class="grelhaBt">
     <button class="bt sec" id="bEtq" aria-pressed="${grupoEtiq.visible}">Etiquetas</button>
     <button class="bt sec" id="bRodar" aria-pressed="${controls.autoRotate}">Rodar automaticamente</button>
+    <button class="bt sec" id="bQual" title="Muda a qualidade gráfica (a página volta a carregar)">Qualidade: ${ALTA ? 'alta' : 'leve'}</button>
   </div>
   <p class="nota">Clica nas etiquetas amarelas para saber o que é cada local. Passa o rato sobre um lugar (ou toca nele) para veres quem lá se senta.</p>`;
 }
@@ -371,8 +385,8 @@ function definirModo(m) {
   grupoCont.visible = m === 'numero';
   if (m === 'visita') {
     pTitulo.textContent = 'Visita ao hemiciclo';
-    pConteudo.innerHTML = htmlVisita();
     grupoEtiq.visible = grupoEtiq.userData.ver ?? true;
+    pConteudo.innerHTML = htmlVisita();
     pintar(l => ({ cor: cAzul }));
     ligarVisita();
   } else {
@@ -405,6 +419,7 @@ function definirModo(m) {
 function ligarVisita() {
   pConteudo.querySelectorAll('[data-vista]').forEach(b => b.onclick = () => { const v = VISTAS[b.dataset.vista]; controls.autoRotate = false; voar(v[1], v[2]); });
   const bE = document.getElementById('bEtq'); bE.onclick = () => { grupoEtiq.visible = !grupoEtiq.visible; grupoEtiq.userData.ver = grupoEtiq.visible; bE.setAttribute('aria-pressed', grupoEtiq.visible); };
+  document.getElementById('bQual').onclick = () => { try { localStorage.setItem('pe3d-qualidade', ALTA ? 'leve' : 'alta'); } catch (e) {} location.reload(); };
   const bR = document.getElementById('bRodar'); bR.onclick = () => { controls.autoRotate = !controls.autoRotate; bR.setAttribute('aria-pressed', controls.autoRotate); };
   const mostrarPasso = () => {
     const [v, t, txt] = ROTEIRO[passo];
@@ -507,26 +522,45 @@ function ajustarVista() {
   const pw = largo ? painel.offsetWidth + 24 : 0;
   const ph = estreito ? Math.round(painel.offsetHeight * 0.8) : 0;
   const chave = innerWidth + 'x' + innerHeight + ':' + pw + ':' + ph;
-  if (chave === ultimaVista) return; ultimaVista = chave;
+  if (chave === ultimaVista) return false; ultimaVista = chave;
   camera.fov = innerWidth < innerHeight ? 62 : 50;
+  controls.maxDistance = innerWidth < innerHeight ? 125 : 80;
   camera.aspect = (innerWidth + pw) / (innerHeight + ph);
   if (pw || ph) camera.setViewOffset(innerWidth + pw, innerHeight + ph, pw, ph, innerWidth, innerHeight); else camera.clearViewOffset();
   camera.updateProjectionMatrix();
+  return true;
 }
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const marcarSujo = () => { sujo = true; };
+for (const ev of ['pointerdown', 'pointerup', 'wheel', 'keydown', 'click', 'touchstart', 'resize']) addEventListener(ev, marcarSujo, { passive: true });
+controls.addEventListener('change', marcarSujo);
+const LIM = new THREE.Vector3();
+function limitarCamera() {
+  // alvo dentro da sala
+  const t = controls.target;
+  t.x = THREE.MathUtils.clamp(t.x, -24, 24); t.y = THREE.MathUtils.clamp(t.y, 0, 12); t.z = THREE.MathUtils.clamp(t.z, -27, 9);
+  // câmara: não atravessa a parede da Presidência nem o chão; dentro das paredes curvas quando está abaixo do teto
+  const c = camera.position;
+  if (c.z > Z_PAREDE - 0.6) c.z = Z_PAREDE - 0.6;
+  if (c.y < 0.8) c.y = 0.8;
+  if (c.y < 20) { const r = Math.hypot(c.x, c.z), rm = 31.5; if (r > rm) { c.x *= rm / r; c.z *= rm / r; } }
+}
 function ciclo(t) {
   if (anim) {
+    sujo = true;
     const k = Math.min(1, (t - anim.ini) / anim.dur), e = ease(k);
     camera.position.lerpVectors(anim.p0, anim.p1, e);
     controls.target.lerpVectors(anim.t0, anim.t1, e);
     if (k >= 1) anim = null;
   }
-  controls.update();
-  // manter a câmara dentro da sala (não atravessar a parede da Presidência)
-  if (camera.position.z > Z_PAREDE - 0.6) { camera.position.z = Z_PAREDE - 0.6; }
+  if (controls.update()) sujo = true;
+  if (controls.autoRotate) sujo = true;
+  limitarCamera();
   H.teto.visible = camera.position.y < 20.5 && Math.hypot(camera.position.x, camera.position.z) < 33;
-  ajustarVista();
+  if (ajustarVista()) sujo = true;
   processarRato();
+  if (!sujo) return; // só desenha quando algo muda (poupa bateria e processador)
+  sujo = false;
   renderer.render(scene, camera);
   css.render(scene, camera);
 }
@@ -543,4 +577,4 @@ bEntrar.onclick = () => { document.getElementById('entrada').hidden = true; };
 // acesso direto por endereço (ex.: #grupos) — útil para a sala de aula
 const h = location.hash.replace('#', '');
 if (['grupos', 'numero', 'estados'].includes(h)) { document.getElementById('entrada').hidden = true; definirModo(h); }
-window.__visita = { lugarSob, definirModo, voar, VISTAS, camera, controls, lugares, GRUPOS, porPais, setPais: cc => { paisSel = cc; definirModo('estados'); }, setGrupo: g => { filtroGrupo = g; definirModo('grupos'); } };
+window.__visita = { renderer, lugarSob, definirModo, voar, VISTAS, camera, controls, lugares, GRUPOS, porPais, setPais: cc => { paisSel = cc; definirModo('estados'); }, setGrupo: g => { filtroGrupo = g; definirModo('grupos'); } };

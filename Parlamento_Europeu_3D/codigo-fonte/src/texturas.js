@@ -32,7 +32,7 @@ export function madeiraRipas(base = [196, 152, 98], ripas = 16) {
       g.stroke();
     }
     // junta escura entre ripas
-    g.fillStyle = 'rgba(40,22,8,.55)'; g.fillRect(i * lw + lw - 3, 0, 3, H);
+    g.fillStyle = 'rgba(40,22,8,.28)'; g.fillRect(i * lw + lw - 4, 0, 4, H);
     g.fillStyle = 'rgba(255,240,210,.18)'; g.fillRect(i * lw, 0, 2, H);
   }
   return fazTextura(c);
@@ -58,7 +58,7 @@ export function alcatifa(base = [28, 52, 120], escala = 1) {
   const W = 256, H = 256, c = canvas(W, H), g = c.getContext('2d'), r = rnd(3);
   const img = g.createImageData(W, H);
   for (let i = 0; i < W * H; i++) {
-    const n = (r() - 0.5) * 34 + (((i % W) + Math.floor(i / W)) % 4 === 0 ? -6 : 0);
+    const n = (r() - 0.5) * 9;
     img.data[i * 4] = base[0] + n * 0.6; img.data[i * 4 + 1] = base[1] + n * 0.8; img.data[i * 4 + 2] = base[2] + n; img.data[i * 4 + 3] = 255;
   }
   g.putImageData(img, 0, 0);
@@ -71,7 +71,7 @@ export function tecido() {
   const img = g.createImageData(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = (y * W + x) * 4;
-    const trama = ((x % 4 < 2) ^ (y % 4 < 2)) ? 12 : -12;
+    const trama = ((x % 8 < 4) ^ (y % 8 < 4)) ? 3 : -3;
     const v = 225 + trama + (r() - 0.5) * 20;
     img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
   }

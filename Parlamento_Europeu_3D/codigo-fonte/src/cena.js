@@ -19,7 +19,7 @@ export function polar(rPlanta, aGraus) {
 }
 
 // Prisma em setor anelar (degraus, galerias)
-function setorPrisma(r0, r1, a0, a1, y0, y1, seg) {
+function setorPrisma(r0, r1, a0, a1, y0, y1, seg, traseira = true) {
   const pos = [], uv = [], idx = [];
   const ponto = (r, a, y) => [r * Math.cos(a * DEG), y, -r * Math.sin(a * DEG)];
   const quad = (p0, p1, p2, p3, u0, u1, v0, v1) => {
@@ -35,8 +35,8 @@ function setorPrisma(r0, r1, a0, a1, y0, y1, seg) {
     quad(ponto(r0, ab, y1), ponto(r0, aa, y1), ponto(r1, aa, y1), ponto(r1, ab, y1), ub, ua, 0, r1 - r0);
     // espelho (frente, virado para o centro)
     quad(ponto(r0, ab, y0), ponto(r0, aa, y0), ponto(r0, aa, y1), ponto(r0, ab, y1), ub, ua, y0, y1);
-    // traseira
-    quad(ponto(r1, aa, y0), ponto(r1, ab, y0), ponto(r1, ab, y1), ponto(r1, aa, y1), ua, ub, y0, y1);
+    // traseira (omitida nos degraus: evita faces coincidentes que cintilam)
+    if (traseira) quad(ponto(r1, aa, y0), ponto(r1, ab, y0), ponto(r1, ab, y1), ponto(r1, aa, y1), ua, ub, y0, y1);
   }
   // topos laterais
   const lado = (a, inv) => {
@@ -57,7 +57,7 @@ function caixa(w, h, d, x = 0, y = 0, z = 0, rx = 0) {
   g.translate(x, y, z); return g;
 }
 function caixaR(w, h, d, r, x = 0, y = 0, z = 0, rx = 0) {
-  const g = new RoundedBoxGeometry(w, h, d, 2, r);
+  const g = new RoundedBoxGeometry(w, h, d, 1, r);
   if (rx) g.rotateX(rx);
   g.translate(x, y, z); return g;
 }
@@ -72,40 +72,35 @@ function funde(lista) { return mergeGeometries(lista.map(limpa)); }
 
 // ---------------- Modelos de um lugar (no referencial local: +Z aponta para a Presidência) ----------------
 function modelosLugar() {
-  // estofo: assento + encosto alto
+  // estofo: assento + encosto alto (arestas arredondadas)
   const estofo = funde([
     caixaR(0.5, 0.1, 0.48, 0.04, 0, 0.47, -0.30),
     caixaR(0.5, 0.66, 0.1, 0.045, 0, 0.86, -0.56, -0.16),
   ]);
-  // estrutura metálica da cadeira: coluna, base em estrela, braços
+  // estrutura metálica da cadeira: coluna, base, braços (geometria simples)
   const estrutura = funde([
-    cil(0.035, 0.035, 0.36, 0, 0.24, -0.32, 10),
+    cil(0.035, 0.035, 0.36, 0, 0.24, -0.32, 6),
     cil(0.26, 0.26, 0.025, 0, 0.02, -0.32, 5),
-    caixaR(0.05, 0.05, 0.34, 0.015, -0.27, 0.66, -0.3),
-    caixaR(0.05, 0.05, 0.34, 0.015, 0.27, 0.66, -0.3),
+    caixa(0.05, 0.05, 0.34, -0.27, 0.66, -0.3),
+    caixa(0.05, 0.05, 0.34, 0.27, 0.66, -0.3),
     caixa(0.03, 0.18, 0.03, -0.27, 0.56, -0.38),
     caixa(0.03, 0.18, 0.03, 0.27, 0.56, -0.38),
     caixa(0.44, 0.04, 0.04, 0, 0.42, -0.3),
   ]);
-  // bancada: tampo inclinado em madeira
-  const tampo = funde([caixaR(0.84, 0.045, 0.5, 0.012, 0, 0.76, 0.2, 0.06)]);
-  // frente da bancada (painel até ao degrau da fila da frente)
+  const tampo = funde([caixa(0.84, 0.045, 0.5, 0, 0.76, 0.2, 0.06)]);
   const frente = funde([caixa(0.84, 1.0, 0.05, 0, 0.26, 0.46)]);
-  // equipamento: consola de voto, microfone de haste e suporte de auscultadores
   const equip = funde([
-    caixaR(0.22, 0.03, 0.12, 0.008, 0.18, 0.795, 0.12, 0.06),
-    cil(0.012, 0.012, 0.42, 0.0, 0.98, 0.2, 8, -0.55),
-    cil(0.022, 0.03, 0.07, 0.0, 1.19, 0.08, 10, -0.55),
-    caixaR(0.12, 0.03, 0.08, 0.01, -0.22, 0.795, 0.12, 0.06),
+    caixa(0.22, 0.03, 0.12, 0.18, 0.795, 0.12, 0.06),
+    cil(0.012, 0.012, 0.42, 0.0, 0.98, 0.2, 4, -0.55),
+    cil(0.022, 0.03, 0.07, 0.0, 1.19, 0.08, 6, -0.55),
+    caixa(0.12, 0.03, 0.08, -0.22, 0.795, 0.12, 0.06),
   ]);
-  // luz do microfone (anel vermelho)
-  const luz = cil(0.024, 0.024, 0.012, 0.0, 1.225, 0.06, 10, -0.55);
-  // caixa invisível para seleção com o rato
+  const luz = cil(0.024, 0.024, 0.012, 0.0, 1.225, 0.06, 6, -0.55);
   const alvo = caixa(0.84, 1.3, 1.25, 0, 0.6, -0.05);
   return { estofo, estrutura, tampo, frente, equip, luz, alvo };
 }
 
-export function construirHemiciclo(scene, lugares, prog = () => {}) {
+export function construirHemiciclo(scene, lugares, prog = () => {}, alta = true) {
   const T = {
     ripas: TX.madeiraRipas(),
     ripasEsc: TX.madeiraRipas([150, 108, 64], 10),
@@ -140,7 +135,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   chao.rotation.x = -Math.PI / 2; chao.receiveShadow = true; raiz.add(chao);
   // círculo decorativo no centro
   const anel = new THREE.Mesh(new THREE.RingGeometry(3.2, 3.45, 96), new THREE.MeshStandardMaterial({ color: 0xc9a64a, roughness: 0.5, metalness: 0.5 }));
-  anel.rotation.x = -Math.PI / 2; anel.position.set(0, 0.005, 0.8); raiz.add(anel);
+  anel.rotation.x = -Math.PI / 2; anel.position.set(0, 0.03, 0.8); raiz.add(anel);
 
   // ---------- degraus (um setor por fila, a partir das posições oficiais) ----------
   const filas = new Map();
@@ -152,7 +147,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   for (const [k, f] of filas) {
     const r = (R0 + DR * k) * S, d = DR * S;
     const pad = 1.0 / r / DEG; // ~1 m de margem
-    degraus.push(setorPrisma(r - d / 2, r + d / 2, f.min - pad, f.max + pad, 0, ALT(k), Math.ceil((f.max - f.min) / 2)));
+    degraus.push(setorPrisma(r - d / 2, r + d / 2, f.min - pad - k * 0.013, f.max + pad + k * 0.013, 0, ALT(k), Math.ceil((f.max - f.min) / 3), false));
   }
   const mDeg = new THREE.Mesh(mergeGeometries(degraus), M.degrau);
   mDeg.receiveShadow = true; mDeg.castShadow = false; raiz.add(mDeg);
@@ -168,7 +163,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   const n = lugares.length;
   const mk = (geo, mat, sombra = true) => {
     const im = new THREE.InstancedMesh(geo, mat, n);
-    im.castShadow = sombra; im.receiveShadow = true; raiz.add(im); return im;
+    im.castShadow = false; im.receiveShadow = alta; raiz.add(im); return im;
   };
   const I = {
     estofo: mk(mod.estofo, M.estofo),
@@ -196,12 +191,14 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   prog(0.55);
 
   // marcadores flutuantes (destaques)
-  const marc = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 18, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }), n);
+  const marc = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }), n);
   const zero = new THREE.Matrix4().makeScale(0, 0, 0);
   for (let i = 0; i < n; i++) { marc.setMatrixAt(i, zero); marc.setColorAt(i, new THREE.Color(1, 1, 1)); }
+  marc.count = 0;
   marc.frustumCulled = false; raiz.add(marc);
   const hastes = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.015, 0.015, 1, 6).translate(0, 0.5, 0), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 }), n);
   for (let i = 0; i < n; i++) hastes.setMatrixAt(i, zero);
+  hastes.count = 0;
   hastes.frustumCulled = false; raiz.add(hastes);
 
   // ---------- Presidência ----------
@@ -305,10 +302,10 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   raiz.add(cilParede(R_GALERIA, Y_GALERIA, Y_TETO + 1, aIniG, aFimG, matParede2));
   // galeria: degraus com cadeiras para o público
   const galDeg = [];
-  for (let k = 0; k < 4; k++) galDeg.push(setorPrisma(R_PAREDE + k * 1.2, R_GALERIA + 0.05, aIni + 2, aFim - 2, Y_GALERIA - 0.6, Y_GALERIA + k * 0.45, 120));
+  for (let k = 0; k < 4; k++) galDeg.push(setorPrisma(R_PAREDE + k * 1.2, R_GALERIA + 0.05, aIni + 2 + k * 0.02, aFim - 2 - k * 0.02, Y_GALERIA - 0.6 + k * 0.01, Y_GALERIA + k * 0.45, 80, false));
   const mGal = new THREE.Mesh(mergeGeometries(galDeg), M.degrau); mGal.receiveShadow = true; raiz.add(mGal);
   // laje/teto falso por baixo da galeria
-  raiz.add(new THREE.Mesh(setorPrisma(R_PAREDE - 0.02, R_GALERIA, aIni, aFim, Y_GALERIA - 0.9, Y_GALERIA - 0.6, 120), M.madeiraEsc));
+  raiz.add(new THREE.Mesh(setorPrisma(R_PAREDE - 0.12, R_GALERIA, aIni, aFim, Y_GALERIA - 0.95, Y_GALERIA - 0.65, 80), M.madeiraEsc));
   // vidro da galeria
   const gv = new THREE.CylinderGeometry(R_PAREDE - 0.05, R_PAREDE - 0.05, 1.05, 128, 1, true, (aIni + 2 + 90) * DEG, (aFim - aIni - 4) * DEG);
   gv.translate(0, Y_GALERIA + 0.5, 0);
@@ -317,7 +314,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   corrimao.rotation.x = -Math.PI / 2; corrimao.rotation.z = (aIni + 2) * DEG; corrimao.position.y = Y_GALERIA + 1.05; raiz.add(corrimao);
   // cadeiras do público
   const cadPub = [];
-  const geoPub = funde([caixaR(0.46, 0.08, 0.42, 0.03, 0, 0.45, 0), caixaR(0.46, 0.5, 0.07, 0.03, 0, 0.72, -0.2, -0.12)]);
+  const geoPub = funde([caixa(0.46, 0.08, 0.42, 0, 0.45, 0), caixa(0.46, 0.5, 0.07, 0, 0.72, -0.2, -0.12)]);
   for (let k = 0; k < 4; k++) {
     const r = R_PAREDE + 0.75 + k * 1.2;
     const passos = Math.floor((aFim - aIni - 8) * DEG * r / 0.58);
@@ -336,7 +333,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   prog(0.8);
 
   // teto em cúpula com ripas de madeira, nervuras e anéis de luz
-  const cupGeo = new THREE.SphereGeometry(R_GALERIA, 128, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+  const cupGeo = new THREE.SphereGeometry(R_GALERIA, 96, 20, 0, Math.PI * 2, 0, Math.PI / 2);
   cupGeo.scale(1, 0.36, 1); cupGeo.translate(0, Y_TETO + 1, 0);
   const matCup = M.madeira.clone(); matCup.side = THREE.BackSide; matCup.map = T.ripas.clone(); matCup.map.repeat.set(90, 4); matCup.map.needsUpdate = true;
   const teto = new THREE.Group(); raiz.add(teto);
@@ -346,7 +343,7 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
     const a = i * 10 * DEG;
     const curva = new THREE.EllipseCurve(0, 0, R_GALERIA - 0.3, R_GALERIA * 0.36 - 0.2, 0, Math.PI / 2 - 0.05);
     const pts = curva.getPoints(24).map(p => new THREE.Vector3(p.x * Math.cos(a), Y_TETO + 1 + p.y, p.x * Math.sin(a))).filter(v => v.z < Z_PAREDE - 0.2);
-    if (pts.length > 2) nerv.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 0.12, 6, false));
+    if (pts.length > 2) nerv.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, 0.12, 5, false));
   }
   teto.add(new THREE.Mesh(mergeGeometries(nerv), M.madeiraEsc));
   // óculo central luminoso
@@ -370,15 +367,13 @@ export function construirHemiciclo(scene, lugares, prog = () => {}) {
   scene.add(new THREE.HemisphereLight(0xfff4e2, 0x2a3350, 0.55));
   const sol = new THREE.DirectionalLight(0xfff1dc, 1.6);
   sol.position.set(6, 34, 6); sol.target.position.set(0, 0, -8);
-  sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  sol.castShadow = alta; sol.shadow.mapSize.set(1024, 1024);
   Object.assign(sol.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 5, far: 70 });
   sol.shadow.bias = -0.0004; sol.shadow.normalBias = 0.03;
   scene.add(sol, sol.target);
   const spot = new THREE.SpotLight(0xffffff, 260, 40, 0.55, 0.6, 1.6);
   spot.position.set(0, 16, -6); spot.target.position.set(0, 1.5, 8.5); scene.add(spot, spot.target);
-  for (const [x, z] of [[-16, -12], [16, -12], [0, -22], [-22, 2], [22, 2]]) {
-    const p = new THREE.PointLight(0xffe9c8, 120, 30, 1.7); p.position.set(x, 15, z); scene.add(p);
-  }
+  scene.add(new THREE.AmbientLight(0xfff1e0, 0.55));
   prog(1);
 
   return { I, M, marc, hastes, ecras, raiz, zP, teto };
